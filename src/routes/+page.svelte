@@ -99,7 +99,7 @@
 		};
 	}}
 >
-	<a class="how-to-play" href="/how-to-play">How to play</a>
+	<p>Ce jeu est en cours de development</p>
 	<div
 		class="grid"
 		class:playing={!won}
@@ -140,14 +140,20 @@
 	<div class="controls">
 		{#if won || data.answers.length >= attempsAllowedCount}
 			{#if !won && data.answer}
-				<p>the answer was "{data.answer}"</p>
+				<p>La réponse était "{data.answer}"</p>
 			{/if}
 			<button data-key="enter" class="restart selected" formaction="?/restart">
-				{won ? 'you won :)' : `game over :(`} play again?
+				{won ? 'c\'est gagné :)' : `c\'est perdu :(`} play again?
 			</button>
 		{:else}
 			<div class="keyboard">
-				<button data-key="enter" class:selected={submittable} disabled={!submittable}>enter</button>
+				<button 
+					data-key="enter" 
+					class:selected={submittable} 
+					disabled={!submittable}
+				>
+					↲
+				</button>
 
 				<button
 					on:click|preventDefault={update}
@@ -156,7 +162,7 @@
 					name="key"
 					value="backspace"
 				>
-					back
+				⌫
 				</button>
 
 				{#each ['AZERTYUIOP', 'QSDFGHJKLM', 'WXCVBN'] as row}
@@ -352,7 +358,7 @@
 		width: calc(1.5 * var(--size));
 		height: calc(1 / 3 * (100% - 2 * var(--gap)));
 		text-transform: uppercase;
-		font-size: calc(0.3 * var(--size));
+		font-size: calc(0.5 * var(--size));
 		padding-top: calc(0.15 * var(--size));
 	}
 

@@ -9,7 +9,7 @@
 	</main>
 
 	<footer>
-		<p>Isn't this better ?</p>
+		<p>Footer/p>
 	</footer>
 </div>
 
