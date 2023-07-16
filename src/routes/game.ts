@@ -1,10 +1,10 @@
-import { words, allowed } from './words.server';
+import {frenchDictionary, frenchWordList, frenchWordsCount} from './french_words.server';
 
 export class Game {
 	index: number;
-	guesses: string[];
-	answers: string[];
-	answer: string;
+	guesses: string[]; // words guessed by the player
+	answers: string[]; // score associated with each guess
+	solution: string;
 
 	/**
 	 * Create a game object from the player's cookie, or initialise a new game
@@ -16,13 +16,17 @@ export class Game {
 			this.index = +index;
 			this.guesses = guesses ? guesses.split(' ') : [];
 			this.answers = answers ? answers.split(' ') : [];
+			console.debug("game loaded")
 		} else {
-			this.index = Math.floor(Math.random() * words.length);
+			this.index = Math.floor(Math.random() * frenchWordsCount);
 			this.guesses = ['', '', '', '', '', ''];
 			this.answers = [];
+			console.debug("game initialized")
+
 		}
 
-		this.answer = words[this.index];
+		this.solution = frenchWordList[this.index];
+		console.debug("solution is :", this.solution)
 	}
 
 	/**
@@ -31,17 +35,21 @@ export class Game {
 	 */
 	enter(letters: string[]) {
 		const word = letters.join('');
-		const valid = allowed.has(word);
+		const wordFormatted = word.toUpperCase();
+		const valid = frenchDictionary.has(wordFormatted);
 
-		if (!valid) return false;
+		if (!valid) {
+			console.debug(`The word ${word} does not exist in the provided dictionnary.`)
+			return false
+		};
 
 		this.guesses[this.answers.length] = word;
 
-		const available = Array.from(this.answer);
-		const answer = Array(5).fill('_');
+		const available = Array.from(this.solution.toUpperCase());
+		const answer = Array(this.solution.length).fill('_');
 
 		// first, find exact matches
-		for (let i = 0; i < 5; i += 1) {
+		for (let i = 0; i < this.solution.length; i += 1) {
 			if (letters[i] === available[i]) {
 				answer[i] = 'x';
 				available[i] = ' ';
@@ -51,7 +59,7 @@ export class Game {
 		// then find close matches (this has to happen
 		// in a second step, otherwise an early close
 		// match can prevent a later exact match)
-		for (let i = 0; i < 5; i += 1) {
+		for (let i = 0; i < this.solution.length; i += 1) {
 			if (answer[i] === '_') {
 				const index = available.indexOf(letters[i]);
 				if (index !== -1) {

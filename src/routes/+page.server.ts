@@ -1,9 +1,14 @@
 import { fail } from '@sveltejs/kit';
 import { Game } from './game';
 import type { PageServerLoad, Actions } from './$types';
+import { attempsAllowedCount, gameDataCookieName } from './game_config';
 
 export const load = (({ cookies }) => {
-	const game = new Game(cookies.get('sverdle'));
+	const cookieContent = cookies.get(gameDataCookieName);
+	const game = new Game(cookieContent);
+	if (!cookieContent) {
+		cookies.set(gameDataCookieName, game.toString())
+	}
 
 	return {
 		/**
@@ -20,7 +25,12 @@ export const load = (({ cookies }) => {
 		/**
 		 * The correct answer, revealed if the game is over
 		 */
-		answer: game.answers.length >= 6 ? game.answer : null
+		answer: game.answers.length >= attempsAllowedCount ? game.solution : null,
+
+		/**
+		 * Length of the word to find
+		 */
+		answerLength: game.solution.length,
 	};
 }) satisfies PageServerLoad;
 
@@ -30,7 +40,7 @@ export const actions = {
 	 * is available, this will happen in the browser instead of here
 	 */
 	update: async ({ request, cookies }) => {
-		const game = new Game(cookies.get('sverdle'));
+		const game = new Game(cookies.get(gameDataCookieName));
 
 		const data = await request.formData();
 		const key = data.get('key');
@@ -43,7 +53,7 @@ export const actions = {
 			game.guesses[i] += key;
 		}
 
-		cookies.set('sverdle', game.toString());
+		cookies.set(gameDataCookieName, game.toString());
 	},
 
 	/**
@@ -51,7 +61,7 @@ export const actions = {
 	 * the server, so that people can't cheat by peeking at the JavaScript
 	 */
 	enter: async ({ request, cookies }) => {
-		const game = new Game(cookies.get('sverdle'));
+		const game = new Game(cookies.get(gameDataCookieName));
 
 		const data = await request.formData();
 		const guess = data.getAll('guess') as string[];
@@ -60,10 +70,10 @@ export const actions = {
 			return fail(400, { badGuess: true });
 		}
 
-		cookies.set('sverdle', game.toString());
+		cookies.set(gameDataCookieName, game.toString());
 	},
 
 	restart: async ({ cookies }) => {
-		cookies.delete('sverdle');
+		cookies.delete(gameDataCookieName);
 	}
 } satisfies Actions;

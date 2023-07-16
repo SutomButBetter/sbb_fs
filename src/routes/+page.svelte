@@ -1,21 +1,22 @@
 <script lang="ts">
-	import { confetti } from '@neoconfetti/svelte';
 	import { enhance } from '$app/forms';
-	import type { PageData, ActionData } from './$types';
+	import { confetti } from '@neoconfetti/svelte';
+	import type { ActionData, PageData } from './$types';
 	import { reduced_motion } from './reduced-motion';
+	import { attempsAllowedCount } from './game_config';
 
 	export let data: PageData;
 
 	export let form: ActionData;
 
 	/** Whether or not the user has won */
-	$: won = data.answers.at(-1) === 'xxxxx';
+	$: won = data.answers.at(-1) === 'x'.repeat(data.answerLength);
 
 	/** The index of the current guess */
 	$: i = won ? -1 : data.answers.length;
 
 	/** Whether the current guess can be submitted */
-	$: submittable = data.guesses[i]?.length === 5;
+	$: submittable = data.guesses[i]?.length === data.answerLength;
 
 	/**
 	 * A map of classnames for all letters that have been guessed,
@@ -36,7 +37,7 @@
 		data.answers.forEach((answer, i) => {
 			const guess = data.guesses[i];
 
-			for (let i = 0; i < 5; i += 1) {
+			for (let i = 0; i < data.answerLength; i += 1) {
 				const letter = guess[i];
 
 				if (answer[i] === 'x') {
@@ -56,14 +57,12 @@
 	 */
 	function update(event: MouseEvent) {
 		const guess = data.guesses[i];
-		const key = (event.target as HTMLButtonElement).getAttribute(
-			'data-key'
-		);
+		const key = (event.target as HTMLButtonElement).getAttribute('data-key');
 
 		if (key === 'backspace') {
 			data.guesses[i] = guess.slice(0, -1);
 			if (form?.badGuess) form.badGuess = false;
-		} else if (guess.length < 5) {
+		} else if (guess.length < data.answerLength) {
 			data.guesses[i] += key;
 		}
 	}
@@ -101,13 +100,17 @@
 	}}
 >
 	<a class="how-to-play" href="/how-to-play">How to play</a>
-
-	<div class="grid" class:playing={!won} class:bad-guess={form?.badGuess}>
-		{#each Array(6) as _, row}
+	<div
+		class="grid"
+		class:playing={!won}
+		class:bad-guess={form?.badGuess}
+		style:--columns={data.answerLength}
+	>
+		{#each Array(attempsAllowedCount) as _, row}
 			{@const current = row === i}
 			<h2 class="visually-hidden">Row {row + 1}</h2>
 			<div class="row" class:current>
-				{#each Array(5) as _, column}
+				{#each Array(data.answerLength) as _, column}
 					{@const answer = data.answers[row]?.[column]}
 					{@const value = data.guesses[row]?.[column] ?? ''}
 					{@const selected = current && column === data.guesses[row].length}
@@ -135,7 +138,7 @@
 	</div>
 
 	<div class="controls">
-		{#if won || data.answers.length >= 6}
+		{#if won || data.answers.length >= attempsAllowedCount}
 			{#if !won && data.answer}
 				<p>the answer was "{data.answer}"</p>
 			{/if}
@@ -156,14 +159,14 @@
 					back
 				</button>
 
-				{#each ['azertyuiop', 'qsdfghjklm', 'wxcvbn'] as row}
+				{#each ['AZERTYUIOP', 'QSDFGHJKLM', 'WXCVBN'] as row}
 					<div class="row">
 						{#each row as letter}
 							<button
 								on:click|preventDefault={update}
 								data-key={letter}
 								class={classnames[letter]}
-								disabled={data.guesses[i].length === 5}
+								disabled={data.guesses[i].length === data.answerLength}
 								formaction="?/update"
 								name="key"
 								value={letter}
@@ -239,7 +242,7 @@
 
 	.grid .row {
 		display: grid;
-		grid-template-columns: repeat(5, 1fr);
+		grid-template-columns: repeat(var(--columns), 1fr);
 		grid-gap: 0.2rem;
 		margin: 0 0 0.2rem 0;
 	}
