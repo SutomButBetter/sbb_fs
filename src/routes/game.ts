@@ -1,36 +1,38 @@
 import {frenchDictionary, frenchWordList, frenchWordsCount} from './french_words.server';
 
 export class Game {
-	index: number;
 	guesses: string[]; // words guessed by the player
 	answers: string[]; // score associated with each guess
+	solutionIndex: number;
 	solution: string;
 
 	/**
 	 * Create a game object from the player's cookie, or initialise a new game
 	 */
 	constructor(serialized: string | undefined = undefined) {
+		console.group("Game loading");
 		if (serialized) {
 			const [index, guesses, answers] = serialized.split('-');
 
-			this.index = +index;
+			this.solutionIndex = +index;
 			this.guesses = guesses ? guesses.split(' ') : [];
 			this.answers = answers ? answers.split(' ') : [];
-			console.debug("game loaded")
+			console.debug("game loaded from cookie")
 		} else {
-			this.index = Math.floor(Math.random() * frenchWordsCount);
+			this.solutionIndex = Math.floor(Math.random() * frenchWordsCount);
 			this.guesses = ['', '', '', '', '', ''];
 			this.answers = [];
 			console.debug("game initialized")
 
 		}
 
-		this.solution = frenchWordList[this.index];
-		console.debug("solution is :", this.solution)
+		this.solution = frenchWordList[this.solutionIndex];
+		console.debug("solution is :", this.solution);
+		console.groupEnd();
 	}
 
 	/**
-	 * Update game state based on a guess of a five-letter word. Returns
+	 * Update game state based on a guess of a word. Returns
 	 * true if the guess was valid, false otherwise
 	 */
 	enter(letters: string[]) {
@@ -78,6 +80,6 @@ export class Game {
 	 * Serialize game state so it can be set as a cookie
 	 */
 	toString() {
-		return `${this.index}-${this.guesses.join(' ')}-${this.answers.join(' ')}`;
+		return `${this.solutionIndex}-${this.guesses.join(' ')}-${this.answers.join(' ')}`;
 	}
 }

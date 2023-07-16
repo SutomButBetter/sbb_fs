@@ -1,15 +1,17 @@
 import { fail } from '@sveltejs/kit';
+import type { Actions, PageServerLoad } from './$types';
 import { Game } from './game';
-import type { PageServerLoad, Actions } from './$types';
-import { attempsAllowedCount, gameDataCookieName } from './game_config';
+import { GameDifficultyConfig, attempsAllowedCount, gameDataCookieName, gameConfigCookieName } from './game_config';
 
 export const load = (({ cookies }) => {
-	const cookieContent = cookies.get(gameDataCookieName);
-	const game = new Game(cookieContent);
-	if (!cookieContent) {
-		cookies.set(gameDataCookieName, game.toString())
-	}
+	const gameConfigCookieRawContent = cookies.get(gameConfigCookieName);
+	const config = new GameDifficultyConfig(gameConfigCookieRawContent);
+	cookies.set(gameConfigCookieName, config.toString());
 
+	const gameDataCookieRawContent = cookies.get(gameDataCookieName);
+	const game = new Game(gameDataCookieRawContent);
+	cookies.set(gameDataCookieName, game.toString());
+	
 	return {
 		/**
 		 * The player's guessed words so far
@@ -31,6 +33,8 @@ export const load = (({ cookies }) => {
 		 * Length of the word to find
 		 */
 		answerLength: game.solution.length,
+
+		firstLetter: !!config.revealFirstLetter ? game.solution[0] : null,
 	};
 }) satisfies PageServerLoad;
 

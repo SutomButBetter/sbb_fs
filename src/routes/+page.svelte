@@ -34,6 +34,11 @@
 		classnames = {};
 		description = {};
 
+		if (!!data.firstLetter) {
+			classnames[data.firstLetter] = 'exact';
+			description[data.firstLetter] = 'correct';
+		}
+
 		data.answers.forEach((answer, i) => {
 			const guess = data.guesses[i];
 
@@ -72,7 +77,8 @@
 	 * desktop users can use the keyboard to play the game
 	 */
 	function keydown(event: KeyboardEvent) {
-		if (event.metaKey) return;
+		// ignore the event if a modifier is pressed
+		if (event.metaKey || event.altKey || event.ctrlKey) return;
 
 		document
 			.querySelector(`[data-key="${event.key}" i]`)
@@ -143,17 +149,11 @@
 				<p>La réponse était "{data.answer}"</p>
 			{/if}
 			<button data-key="enter" class="restart selected" formaction="?/restart">
-				{won ? 'c\'est gagné :)' : `c\'est perdu :(`} play again?
+				{won ? "c'est gagné :)" : `c\'est perdu :(`} play again?
 			</button>
 		{:else}
 			<div class="keyboard">
-				<button 
-					data-key="enter" 
-					class:selected={submittable} 
-					disabled={!submittable}
-				>
-					↲
-				</button>
+				<button data-key="enter" class:selected={submittable} disabled={!submittable}> ↲ </button>
 
 				<button
 					on:click|preventDefault={update}
@@ -162,7 +162,7 @@
 					name="key"
 					value="backspace"
 				>
-				⌫
+					⌫
 				</button>
 
 				{#each ['AZERTYUIOP', 'QSDFGHJKLM', 'WXCVBN'] as row}
@@ -355,19 +355,18 @@
 	.keyboard button[data-key='backspace'] {
 		position: absolute;
 		bottom: 0;
-		width: calc(1.5 * var(--size));
+		width: calc(1.7 * var(--size));
 		height: calc(1 / 3 * (100% - 2 * var(--gap)));
-		text-transform: uppercase;
 		font-size: calc(0.5 * var(--size));
 		padding-top: calc(0.15 * var(--size));
 	}
 
 	.keyboard button[data-key='enter'] {
-		right: calc(50% + 3.5 * var(--size) + 0.8rem);
+		right: calc(50% + 3.3 * var(--size) + 0.8rem);
 	}
 
 	.keyboard button[data-key='backspace'] {
-		left: calc(50% + 3.5 * var(--size) + 0.8rem);
+		left: calc(50% + 3.3 * var(--size) + 0.8rem);
 	}
 
 	.keyboard button[data-key='enter']:disabled {
