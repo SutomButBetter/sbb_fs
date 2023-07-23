@@ -148,9 +148,9 @@
 			{#if !won && data.answer}
 				<p>La réponse était "{data.answer}"</p>
 			{/if}
-			<button data-key="enter" class="restart selected" formaction="?/restart">
-				{won ? "c'est gagné :)" : `c\'est perdu :(`} play again?
-			</button>
+			<p class="restart">
+				{won ? "c'est gagné :)" : `c\'est perdu :(`}
+			</p>
 		{:else}
 			<div class="keyboard">
 				<button data-key="enter" class:selected={submittable} disabled={!submittable}> ↲ </button>
@@ -376,13 +376,8 @@
 	.restart {
 		width: 100%;
 		padding: 1rem;
-		background: rgba(255, 255, 255, 0.5);
 		border-radius: 2px;
 		border: none;
-	}
-
-	.restart:focus,
-	.restart:hover {
 		background: var(--color-theme-1);
 		color: white;
 		outline: none;
