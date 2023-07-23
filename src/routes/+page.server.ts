@@ -3,13 +3,14 @@ import type { Actions, PageServerLoad } from './$types';
 import { Game } from './game';
 import { GameDifficultyConfig, attempsAllowedCount, gameDataCookieName, gameConfigCookieName } from './game_config';
 
-export const load = (({ cookies }) => {
+export const load = (async ({ cookies }) => {
 	const gameConfigCookieRawContent = cookies.get(gameConfigCookieName);
 	const config = new GameDifficultyConfig(gameConfigCookieRawContent);
 	cookies.set(gameConfigCookieName, config.toString());
 
 	const gameDataCookieRawContent = cookies.get(gameDataCookieName);
 	const game = new Game(gameDataCookieRawContent);
+	await game.init()
 	cookies.set(gameDataCookieName, game.toString());
 	
 	return {
@@ -45,7 +46,7 @@ export const actions = {
 	 */
 	update: async ({ request, cookies }) => {
 		const game = new Game(cookies.get(gameDataCookieName));
-
+		game.init()
 		const data = await request.formData();
 		const key = data.get('key');
 
@@ -66,6 +67,7 @@ export const actions = {
 	 */
 	enter: async ({ request, cookies }) => {
 		const game = new Game(cookies.get(gameDataCookieName));
+		game.init()
 
 		const data = await request.formData();
 		const guess = data.getAll('guess') as string[];

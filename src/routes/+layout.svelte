@@ -3,13 +3,14 @@
 </script>
 
 <div class="app">
-
 	<main>
 		<slot />
 	</main>
 
 	<footer>
-		<p>Footer</p>
+		<form method="POST">
+			<button data-key="enter" formaction="?/restart"> reset </button>
+		</form>
 	</footer>
 </div>
 
@@ -37,10 +38,6 @@
 		justify-content: center;
 		align-items: center;
 		padding: 12px;
-	}
-
-	footer a {
-		font-weight: bold;
 	}
 
 	@media (min-width: 480px) {
