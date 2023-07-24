@@ -1,7 +1,12 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { Game } from './game';
-import { GameDifficultyConfig, attempsAllowedCount, gameDataCookieName, gameConfigCookieName } from './game_config';
+import {
+	GameDifficultyConfig,
+	attempsAllowedCount,
+	gameDataCookieName,
+	gameConfigCookieName
+} from './game_config';
 
 export const load = (async ({ cookies }) => {
 	const gameConfigCookieRawContent = cookies.get(gameConfigCookieName);
@@ -10,9 +15,9 @@ export const load = (async ({ cookies }) => {
 
 	const gameDataCookieRawContent = cookies.get(gameDataCookieName);
 	const game = new Game(gameDataCookieRawContent);
-	await game.init()
+	await game.init();
 	cookies.set(gameDataCookieName, game.toString());
-	
+
 	return {
 		/**
 		 * The player's guessed words so far
@@ -26,6 +31,11 @@ export const load = (async ({ cookies }) => {
 		answers: game.answers,
 
 		/**
+		 * number of word in the french dictionnary matching the response
+		 */
+		possibilities: game.possibilities,
+
+		/**
 		 * The correct answer, revealed if the game is over
 		 */
 		answer: game.answers.length >= attempsAllowedCount ? game.solution : null,
@@ -35,7 +45,7 @@ export const load = (async ({ cookies }) => {
 		 */
 		answerLength: game.solution.length,
 
-		firstLetter: !!config.revealFirstLetter ? game.solution[0] : null,
+		firstLetter: !!config.revealFirstLetter ? game.solution[0] : null
 	};
 }) satisfies PageServerLoad;
 
@@ -46,7 +56,7 @@ export const actions = {
 	 */
 	update: async ({ request, cookies }) => {
 		const game = new Game(cookies.get(gameDataCookieName));
-		game.init()
+		game.init();
 		const data = await request.formData();
 		const key = data.get('key');
 
@@ -67,7 +77,7 @@ export const actions = {
 	 */
 	enter: async ({ request, cookies }) => {
 		const game = new Game(cookies.get(gameDataCookieName));
-		game.init()
+		game.init();
 
 		const data = await request.formData();
 		const guess = data.getAll('guess') as string[];

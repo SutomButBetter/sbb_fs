@@ -1,32 +1,38 @@
-import { getNocleSutomWord } from '$lib/server/nocle_sutom';
+import { doesWordMatchScore, getWordMatchingCount } from '$lib/game_utils';
+import { getNocleSutomWord } from '$lib/server/nocle/nocle_interface';
 import { frenchDictionary, frenchWordList, frenchWordsCount } from './french_words.server';
+import { attempsAllowedCount } from './game_config';
+import type { words } from './words.server';
 
 export class Game {
 	guesses: string[]; // words guessed by the player
 	answers: string[]; // score associated with each guess
-	solutionIndex: number|undefined;
-	solution: string = "";
+	solutionIndex: number | undefined;
+	solution: string = '';
+	possibilities: number[];
 
 	/**
 	 * Create a game object from the player's cookie, or initialise a new game
 	 */
 	constructor(serialized: string | undefined = undefined) {
-		console.group("Game loading");
+		console.group('Game loading');
 		if (serialized) {
-			console.debug("loading from cookie")
-			const [index, guesses, answers] = serialized.split('-');
+			console.debug('loading from cookie');
+			const [index, guesses, answers, possibilities] = serialized.split('-');
 
 			this.solutionIndex = +index;
 			this.guesses = guesses ? guesses.split(' ') : [];
 			this.answers = answers ? answers.split(' ') : [];
+			this.possibilities = possibilities ? possibilities.split(' ').map((str) => +str) : [];
 			this.solution = frenchWordList[this.solutionIndex];
-			console.debug("solution (loaded) is :", this.solution);
+			console.debug('solution (loaded) is :', this.solution);
 		} else {
-			console.debug("generating new game data")
+			console.debug('generating new game data');
 
 			this.guesses = ['', '', '', '', '', ''];
 			this.answers = [];
-			console.debug("game partially initialized, no solution yet")
+			this.possibilities = [];
+			console.debug('game partially initialized, no solution yet');
 		}
 
 		console.groupEnd();
@@ -34,23 +40,33 @@ export class Game {
 
 	async init() {
 		if (this.isInit()) {
-			console.debug("already initialized")
+			console.debug('already initialized');
 			return;
 		}
 
 		let nocleSolution = await getNocleSutomWord(new Date());
 
 		if (nocleSolution) {
-			this.solutionIndex = frenchWordList.findIndex(e => e === nocleSolution);
+			this.solutionIndex = frenchWordList.findIndex((e) => e === nocleSolution);
 
-			this.solution = nocleSolution; 
-			console.debug("solution is :", this.solution);
-			console.debug("game initialized")
+			this.solution = nocleSolution;
+			console.debug('solution is :', this.solution);
+			console.debug('game initialized');
+		}
+
+		if (this.guesses) {
+			for (let index = 0; index < this.guesses.length; index++) {
+				const guess = this.guesses[index];
+				const score = this.answers[index];
+
+				const matchingWordsCount = getWordMatchingCount(guess, score);
+				this.possibilities[index] = matchingWordsCount;
+			}
 		}
 	}
 
-	isInit() : boolean{
-		return !!this.solutionIndex;
+	isInit(): boolean {
+		return !!this.solutionIndex && !!this.possibilities;
 	}
 
 	/**
@@ -64,13 +80,14 @@ export class Game {
 		const word = letters.join('');
 		const wordFormatted = word.toUpperCase();
 		const valid = frenchDictionary.has(wordFormatted);
+		const answerIndex = this.answers.length;
 
 		if (!valid) {
-			console.debug(`The word ${word} does not exist in the provided dictionnary.`)
-			return false
-		};
+			console.debug(`The word ${word} does not exist in the provided dictionnary.`);
+			return false;
+		}
 
-		this.guesses[this.answers.length] = word;
+		this.guesses[answerIndex] = word;
 
 		const available = Array.from(this.solution.toUpperCase());
 		const answer = Array(this.solution.length).fill('_');
@@ -98,6 +115,9 @@ export class Game {
 
 		this.answers.push(answer.join(''));
 
+		const matchingWordsCount = getWordMatchingCount(word, answer.join(''));
+		this.possibilities[answerIndex] = matchingWordsCount;
+
 		return true;
 	}
 
@@ -105,6 +125,8 @@ export class Game {
 	 * Serialize game state so it can be set as a cookie
 	 */
 	toString() {
-		return `${this.solutionIndex}-${this.guesses.join(' ')}-${this.answers.join(' ')}`;
+		return `${this.solutionIndex}-${this.guesses.join(' ')}-${this.answers.join(
+			' '
+		)}-${this.possibilities.join(' ')}`;
 	}
 }

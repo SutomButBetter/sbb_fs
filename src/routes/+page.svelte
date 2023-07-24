@@ -110,7 +110,7 @@
 		class="grid"
 		class:playing={!won}
 		class:bad-guess={form?.badGuess}
-		style:--columns={data.answerLength}
+		style:--columns={data.answerLength+1}
 	>
 		{#each Array(attempsAllowedCount) as _, row}
 			{@const current = row === i}
@@ -119,7 +119,7 @@
 				{#each Array(data.answerLength) as _, column}
 					{@const answer = data.answers[row]?.[column]}
 					{@const value = data.guesses[row]?.[column] ?? ''}
-					{@const selected = current && column === data.guesses[row].length}
+					{@const selected = current && column === data.guesses[row]?.length}
 					{@const exact = answer === 'x'}
 					{@const close = answer === 'c'}
 					{@const missing = answer === '_'}
@@ -139,6 +139,9 @@
 						<input name="guess" disabled={!current} type="hidden" {value} />
 					</div>
 				{/each}
+				{#if !!data.possibilities[row]} 
+				{data.possibilities[row]}
+				{/if}				
 			</div>
 		{/each}
 	</div>
