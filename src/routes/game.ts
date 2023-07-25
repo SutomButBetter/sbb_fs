@@ -25,7 +25,7 @@ export class Game {
 			this.answers = answers ? answers.split(' ') : [];
 			this.possibilities = possibilities ? possibilities.split(' ').map((str) => +str) : [];
 			this.solution = frenchWordList[this.solutionIndex];
-			console.debug('solution (loaded) is :', this.solution);
+			console.debug("solution is loaded:", !!this.solution);
 		} else {
 			console.debug('generating new game data');
 
@@ -50,7 +50,7 @@ export class Game {
 			this.solutionIndex = frenchWordList.findIndex((e) => e === nocleSolution);
 
 			this.solution = nocleSolution;
-			console.debug('solution is :', this.solution);
+			console.debug("solution loaded from nocle:", !!this.solution);
 			console.debug('game initialized');
 		}
 
