@@ -1,6 +1,6 @@
 {
 	"useTabs": true,
-	"singleQuote": false,
+	"singleQuote": true,
 	"trailingComma": "es5",
 	"printWidth": 150,
 	"plugins": ["prettier-plugin-svelte"],

@@ -9,14 +9,17 @@
 
 	export let form: ActionData;
 
+	/** Store guesses on their own to avoid circular dependencies*/
+	$: guesses = data.guesses;
+
 	/** Whether or not the user has won */
 	$: won = data.answers.at(-1) === 'x'.repeat(data.answerLength);
 
 	/** The index of the current guess */
-	$: i = won ? -1 : data.answers.length;
+	$: i = won ? -1 : data.answers.filter((a) => a?.length === data.answerLength)?.length;
 
 	/** Whether the current guess can be submitted */
-	$: submittable = data.guesses[i]?.length === data.answerLength;
+	$: submittable = guesses[i]?.length === data.answerLength;
 
 	/**
 	 * A map of classnames for all letters that have been guessed,
@@ -40,7 +43,7 @@
 		}
 
 		data.answers.forEach((answer, i) => {
-			const guess = data.guesses[i];
+			const guess = guesses[i];
 
 			for (let i = 0; i < data.answerLength; i += 1) {
 				const letter = guess[i];
@@ -56,19 +59,28 @@
 		});
 	}
 
+	$: {
+		/** Set the first letter of the last attempt*/
+		if (!won && !!data.firstLetter && guesses[i].length < 2) {
+			guesses[i] = data.firstLetter;
+		}
+	}
+
 	/**
 	 * Modify the game state without making a trip to the server,
 	 * if client-side JavaScript is enabled
 	 */
 	function update(event: MouseEvent) {
-		const guess = data.guesses[i];
+		const guess = guesses[i];
 		const key = (event.target as HTMLButtonElement).getAttribute('data-key');
 
 		if (key === 'backspace') {
-			data.guesses[i] = guess.slice(0, -1);
+			if (!!data.firstLetter && guesses[i]?.length > 1) {
+				guesses[i] = guess.slice(0, -1);
+			}
 			if (form?.badGuess) form.badGuess = false;
 		} else if (guess.length < data.answerLength) {
-			data.guesses[i] += key;
+			guesses[i] += key;
 		}
 	}
 
@@ -80,9 +92,7 @@
 		// ignore the event if a modifier is pressed
 		if (event.metaKey || event.altKey || event.ctrlKey) return;
 
-		document
-			.querySelector(`[data-key="${event.key}" i]`)
-			?.dispatchEvent(new MouseEvent('click', { cancelable: true }));
+		document.querySelector(`[data-key="${event.key}" i]`)?.dispatchEvent(new MouseEvent('click', { cancelable: true }));
 	}
 </script>
 
@@ -106,20 +116,15 @@
 	}}
 >
 	<p>Ce jeu est en cours de development</p>
-	<div
-		class="grid"
-		class:playing={!won}
-		class:bad-guess={form?.badGuess}
-		style:--columns={data.answerLength+1}
-	>
+	<div class="grid" class:playing={!won} class:bad-guess={form?.badGuess} style:--columns={data.answerLength + 1}>
 		{#each Array(attempsAllowedCount) as _, row}
 			{@const current = row === i}
 			<h2 class="visually-hidden">Row {row + 1}</h2>
 			<div class="row" class:current>
 				{#each Array(data.answerLength) as _, column}
 					{@const answer = data.answers[row]?.[column]}
-					{@const value = data.guesses[row]?.[column] ?? ''}
-					{@const selected = current && column === data.guesses[row]?.length}
+					{@const value = guesses[row]?.[column] ?? ''}
+					{@const selected = current && column === guesses[row]?.length}
 					{@const exact = answer === 'x'}
 					{@const close = answer === 'c'}
 					{@const missing = answer === '_'}
@@ -139,9 +144,11 @@
 						<input name="guess" disabled={!current} type="hidden" {value} />
 					</div>
 				{/each}
-				{#if !!data.possibilities[row]} 
-				{data.possibilities[row]}
-				{/if}				
+				{#if !!data.possibilities[row]}
+					<div>
+						{data.possibilities[row]}
+					</div>
+				{/if}
 			</div>
 		{/each}
 	</div>
@@ -158,15 +165,7 @@
 			<div class="keyboard">
 				<button data-key="enter" class:selected={submittable} disabled={!submittable}> ↲ </button>
 
-				<button
-					on:click|preventDefault={update}
-					data-key="backspace"
-					formaction="?/update"
-					name="key"
-					value="backspace"
-				>
-					⌫
-				</button>
+				<button on:click|preventDefault={update} data-key="backspace" formaction="?/update" name="key" value="backspace"> ⌫ </button>
 
 				{#each ['AZERTYUIOP', 'QSDFGHJKLM', 'WXCVBN'] as row}
 					<div class="row">
@@ -175,7 +174,7 @@
 								on:click|preventDefault={update}
 								data-key={letter}
 								class={classnames[letter]}
-								disabled={data.guesses[i].length === data.answerLength}
+								disabled={guesses[i].length === data.answerLength}
 								formaction="?/update"
 								name="key"
 								value={letter}
@@ -199,7 +198,7 @@
 			force: 0.7,
 			stageWidth: window.innerWidth,
 			stageHeight: window.innerHeight,
-			colors: ['#ff3e00', '#40b3ff', '#676778']
+			colors: ['#ff3e00', '#40b3ff', '#676778'],
 		}}
 	/>
 {/if}

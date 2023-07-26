@@ -3,16 +3,15 @@ export const gameDataCookieName = "sbb_game_data";
 export const gameConfigCookieName = "sbb_game_config";
 
 export class GameDifficultyConfig {
+	revealFirstLetter: boolean = true;
 
-    revealFirstLetter: boolean = false;
+	constructor(serialized: string | undefined = undefined) {
+		if (serialized) {
+			Object.assign(this, JSON.parse(serialized));
+		}
+	}
 
-    constructor(serialized: string | undefined = undefined) {
-        if (serialized) {
-            Object.assign(this, JSON.parse(serialized))
-        }
-    }
-
-    toString() {
+	toString() {
 		return JSON.stringify(this);
 	}
 }
