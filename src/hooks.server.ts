@@ -1,12 +1,11 @@
+import { SBB_AUTH_SECRET, SBB_GOOGLE_CLIENT_ID, SBB_GOOGLE_SECRET } from '$env/static/private';
 import Google from '@auth/core/providers/google';
 import { SvelteKitAuth } from '@auth/sveltekit';
+import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { redirect, type Handle } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
-import { SBB_GOOGLE_CLIENT_ID, SBB_GOOGLE_SECRET, SBB_AUTH_SECRET } from '$env/static/private';
 
-// the next line is directly copy-pasted from official documentation, why is it triggering a typescript error ?
-// @ts-ignore
-async function authorization({ event, resolve }) {
+export const handleAuthorization: Handle = async function ({ event, resolve }) {
 	console.group('Routing');
 	const session = await event.locals.getSession();
 	console.debug('path:', event.url.pathname);
@@ -22,13 +21,14 @@ async function authorization({ event, resolve }) {
 	// If the request is still here, just proceed as normally
 	console.groupEnd();
 	return resolve(event);
-}
+};
 
-// First handle authentication, then authorization
 // Each function acts as a middleware, receiving the request handle
 // And returning a handle which gets passed to the next function
 export const handle = sequence(
 	SvelteKitAuth({
+		// @ts-ignore
+		adapter: PrismaAdapter(prisma),
 		providers: [
 			Google({
 				clientId: SBB_GOOGLE_CLIENT_ID,
@@ -38,5 +38,5 @@ export const handle = sequence(
 		secret: SBB_AUTH_SECRET,
 		trustHost: true,
 	}),
-	authorization
+	handleAuthorization
 ) satisfies Handle;

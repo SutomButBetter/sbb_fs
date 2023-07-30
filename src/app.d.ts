@@ -10,7 +10,7 @@ declare global {
 		// interface PageData {}
 		// interface Platform {}
 	}
-	var prisma: PrismaClient
+	var prisma: PrismaClient; // used for development to store the prisma client to avoid creating a new connection on each svelte hot-reload
 }
 
 export {};
