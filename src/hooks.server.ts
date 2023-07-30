@@ -1,4 +1,5 @@
 import { SBB_AUTH_SECRET, SBB_GOOGLE_CLIENT_ID, SBB_GOOGLE_SECRET } from '$env/static/private';
+import { prisma } from '$lib/server/prisma';
 import Google from '@auth/core/providers/google';
 import { SvelteKitAuth } from '@auth/sveltekit';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
