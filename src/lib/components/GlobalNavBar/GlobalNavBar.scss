@@ -1,0 +1,38 @@
+.navbar {
+    height: 60px;
+    background-color: var(--color-bg-2);
+    display: flex;
+    justify-content: space-between;
+    box-shadow: 0px 0px 25px 5px var(--color-theme-2);
+
+    .navlinks {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+
+        .navlink {
+            padding-left: 10px;
+            padding-right: 10px;
+
+            a {
+                text-decoration: none;
+            }
+        }
+    }
+
+    .navuser {
+        display: flex;
+        flex-direction: row-reverse;
+        align-items: center;
+        gap: 10px;
+
+        img.profile-picture {
+            height: 75%;
+            width: auto;
+            border-radius: 50%;
+            border: 2px solid #cddc39;
+            filter: drop-shadow(0 0 8px var(--color-theme-1));
+        }
+    }
+}

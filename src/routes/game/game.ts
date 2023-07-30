@@ -1,6 +1,6 @@
-import { getWordMatchingCount } from '$lib/game/game_utils';
+import { getWordMatchingCount } from '$lib/server/game/game_utils';
 import { getNocleSutomWord } from '$lib/server/nocle/nocle_interface';
-import { frenchDictionary, frenchWordList } from '../../lib/game/french_words.server';
+import { frenchDictionary, frenchWordList } from '../../lib/server/game/french_words.server';
 
 export class Game {
 	guesses: string[]; // words guessed by the player
