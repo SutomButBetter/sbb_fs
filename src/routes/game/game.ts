@@ -1,8 +1,8 @@
-import { doesWordMatchScore, getWordMatchingCount } from '$lib/game_utils';
+import { doesWordMatchScore, getWordMatchingCount } from '$lib/game/game_utils';
 import { getNocleSutomWord } from '$lib/server/nocle/nocle_interface';
-import { frenchDictionary, frenchWordList, frenchWordsCount } from './french_words.server';
+import { frenchDictionary, frenchWordList, frenchWordsCount } from '../../lib/game/french_words.server';
 import { attempsAllowedCount } from './game_config';
-import type { words } from './words.server';
+import type { words } from '../../lib/game/words.server';
 
 export class Game {
 	guesses: string[]; // words guessed by the player
@@ -25,7 +25,7 @@ export class Game {
 			this.answers = answers ? answers.split(' ') : [];
 			this.possibilities = possibilities ? possibilities.split(' ').map((str) => +str) : [];
 			this.solution = frenchWordList[this.solutionIndex];
-			console.debug("solution is loaded:", !!this.solution);
+			console.debug('solution is loaded:', !!this.solution);
 		} else {
 			console.debug('generating new game data');
 
@@ -50,7 +50,7 @@ export class Game {
 			this.solutionIndex = frenchWordList.findIndex((e) => e === nocleSolution);
 
 			this.solution = nocleSolution;
-			console.debug("solution loaded from nocle:", !!this.solution);
+			console.debug('solution loaded from nocle:', !!this.solution);
 			console.debug('game initialized');
 		}
 
@@ -125,8 +125,6 @@ export class Game {
 	 * Serialize game state so it can be set as a cookie
 	 */
 	toString() {
-		return `${this.solutionIndex}-${this.guesses.join(' ')}-${this.answers.join(
-			' '
-		)}-${this.possibilities.join(' ')}`;
+		return `${this.solutionIndex}-${this.guesses.join(' ')}-${this.answers.join(' ')}-${this.possibilities.join(' ')}`;
 	}
 }

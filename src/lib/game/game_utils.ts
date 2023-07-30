@@ -1,4 +1,4 @@
-import { frenchWordList } from "../routes/french_words.server";
+import { frenchWordList } from './french_words.server';
 
 export function doesWordMatchScore(word: string, guess: string, score: string): boolean {
 	if (!guess || !score) {
@@ -14,9 +14,9 @@ export function doesWordMatchScore(word: string, guess: string, score: string): 
 		const guessChar = guess.charAt(i);
 		const wordChar = word.charAt(i);
 
-		if (scoreChar === "x" && guessChar !== wordChar) {
+		if (scoreChar === 'x' && guessChar !== wordChar) {
 			return false;
-		} else if (scoreChar === "c" && (guessChar === wordChar || !word.includes(guessChar))) {
+		} else if (scoreChar === 'c' && (guessChar === wordChar || !word.includes(guessChar))) {
 			return false;
 		}
 	}
