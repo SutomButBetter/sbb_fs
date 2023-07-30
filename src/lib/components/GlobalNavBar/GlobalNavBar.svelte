@@ -27,5 +27,5 @@
 </div>
 
 <style lang="scss">
-    @import './GlobalNavBar.scss'
+    @import './GlobalNavBar.scss';
 </style>

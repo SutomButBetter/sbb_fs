@@ -11,3 +11,7 @@ node_modules
 pnpm-lock.yaml
 package-lock.json
 yarn.lock
+
+#ignore large files
+src/lib/server/game/french_words.server.ts
+src/lib/server/game/words.server.ts
