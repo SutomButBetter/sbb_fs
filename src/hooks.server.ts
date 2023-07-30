@@ -4,6 +4,8 @@ import { redirect, type Handle } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 import { SBB_GOOGLE_CLIENT_ID, SBB_GOOGLE_SECRET, SBB_AUTH_SECRET } from '$env/static/private';
 
+// the next line is directly copy-pasted from official documentation, why is it triggering a typescript error ?
+// @ts-ignore
 async function authorization({ event, resolve }) {
 	console.group('Routing');
 	const session = await event.locals.getSession();
@@ -34,6 +36,7 @@ export const handle = sequence(
 			}),
 		],
 		secret: SBB_AUTH_SECRET,
+		trustHost: true,
 	}),
 	authorization
 ) satisfies Handle;
