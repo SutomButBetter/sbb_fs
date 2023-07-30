@@ -2,8 +2,8 @@
 	import { enhance } from '$app/forms';
 	import { confetti } from '@neoconfetti/svelte';
 	import type { ActionData, PageData } from './$types';
-	import { reduced_motion } from './reduced-motion';
 	import { attempsAllowedCount } from './game_config';
+	import { reduced_motion } from './reduced-motion';
 
 	export let data: PageData;
 

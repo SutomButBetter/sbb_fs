@@ -1,12 +1,7 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { Game } from './game';
-import {
-	GameDifficultyConfig,
-	attempsAllowedCount,
-	gameDataCookieName,
-	gameConfigCookieName
-} from './game_config';
+import { GameDifficultyConfig, attempsAllowedCount, gameConfigCookieName, gameDataCookieName } from './game_config';
 
 export const load = (async ({ cookies }) => {
 	const gameConfigCookieRawContent = cookies.get(gameConfigCookieName);
