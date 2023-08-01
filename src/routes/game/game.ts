@@ -1,4 +1,4 @@
-import { getWordMatchingCount } from '$lib/server/game/game_utils';
+import { getWordMatchingCount, processScore } from '$lib/server/game/game_utils';
 import { getNocleSutomWord } from '$lib/server/nocle/nocle_interface';
 import { frenchDictionary, frenchWordList } from '../../lib/server/game/french_words.server';
 
@@ -87,33 +87,10 @@ export class Game {
 
 		this.guesses[answerIndex] = word;
 
-		const available = Array.from(this.solution.toUpperCase());
-		const answer = Array(this.solution.length).fill('_');
+		const score = processScore(this.solution, word);
 
-		// first, find exact matches
-		for (let i = 0; i < this.solution.length; i += 1) {
-			if (letters[i] === available[i]) {
-				answer[i] = 'x';
-				available[i] = ' ';
-			}
-		}
-
-		// then find close matches (this has to happen
-		// in a second step, otherwise an early close
-		// match can prevent a later exact match)
-		for (let i = 0; i < this.solution.length; i += 1) {
-			if (answer[i] === '_') {
-				const index = available.indexOf(letters[i]);
-				if (index !== -1) {
-					answer[i] = 'c';
-					available[index] = ' ';
-				}
-			}
-		}
-
-		this.answers.push(answer.join(''));
-
-		const matchingWordsCount = getWordMatchingCount(word, answer.join(''));
+		this.answers.push(score);
+		const matchingWordsCount = getWordMatchingCount(word, score);
 		this.possibilities[answerIndex] = matchingWordsCount;
 
 		return true;

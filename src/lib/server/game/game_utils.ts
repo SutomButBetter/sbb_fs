@@ -31,3 +31,31 @@ export function getWordMatchingCount(guess: string, score: string): number {
 		return accumulator;
 	}, 0);
 }
+
+export function processScore(solution: string, propositionWord: string): string {
+	const letters = propositionWord.split('');
+	const available = Array.from(solution.toUpperCase());
+	const answer = Array(solution.length).fill('_');
+
+	// first, find exact matches
+	for (let i = 0; i < solution.length; i += 1) {
+		if (letters[i] === available[i]) {
+			answer[i] = 'x';
+			available[i] = ' ';
+		}
+	}
+
+	// then find close matches (this has to happen
+	// in a second step, otherwise an early close
+	// match can prevent a later exact match)
+	for (let i = 0; i < solution.length; i += 1) {
+		if (answer[i] === '_') {
+			const index = available.indexOf(letters[i]);
+			if (index !== -1) {
+				answer[i] = 'c';
+				available[index] = ' ';
+			}
+		}
+	}
+	return answer.join('');
+}

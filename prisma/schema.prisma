@@ -11,18 +11,18 @@ datasource db {
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?  @db.Text
-  access_token       String?  @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?  @db.Text
-  session_state      String?
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -38,13 +38,15 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
+  id             String          @id @default(cuid())
+  name           String?
+  email          String?         @unique
+  emailVerified  DateTime?
+  image          String?
+  accounts       Account[]
+  sessions       Session[]
+  Game           Game[]
+  GameStatistics GameStatistics?
 }
 
 model VerificationToken {
@@ -53,4 +55,45 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model GameSolution {
+  date     DateTime @id @unique(sort: Desc)
+  solution String
+}
+
+model GameStatistics {
+  id             String @id @default(cuid())
+  userId         String @unique /// OneToOne relationship
+  user           User   @relation(fields: [userId], references: [id])
+  attemptCount_0 Int    @default(0)
+  attemptCount_1 Int    @default(0)
+  attemptCount_2 Int    @default(0)
+  attemptCount_3 Int    @default(0)
+  attemptCount_4 Int    @default(0)
+  attemptCount_5 Int    @default(0)
+  attemptCount_6 Int    @default(0)
+  attemptCount_7 Int    @default(0)
+  attemptCount_8 Int    @default(0)
+}
+
+model Game {
+  id           String        @id @default(cuid())
+  userId       String
+  user         User          @relation(fields: [userId], references: [id])
+  date         DateTime
+  attemptCount Int?
+  won          Boolean       @default(false)
+  attempts     GameAttempt[]
+}
+
+model GameAttempt {
+  id            String   @id @default(cuid())
+  gameId        String
+  Game          Game     @relation(fields: [gameId], references: [id])
+  createdAt     DateTime @default(now()) @db.Date
+  word          String
+  score         String
+  wordsMatching Int
+  isSolution    Boolean  @default(false)
 }
