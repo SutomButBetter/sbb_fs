@@ -40,7 +40,7 @@ export const load = (async ({ cookies }) => {
 		 */
 		answerLength: game.solution.length,
 
-		firstLetter: !!config.revealFirstLetter ? game.solution[0] : null
+		firstLetter: config.revealFirstLetter ? game.solution[0] : null,
 	};
 }) satisfies PageServerLoad;
 
@@ -86,5 +86,5 @@ export const actions = {
 
 	restart: async ({ cookies }) => {
 		cookies.delete(gameDataCookieName);
-	}
+	},
 } satisfies Actions;

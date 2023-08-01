@@ -159,7 +159,7 @@
 				<p>La réponse était "{data.answer}"</p>
 			{/if}
 			<p class="restart">
-				{won ? "c'est gagné :)" : `c\'est perdu :(`}
+				{won ? "c'est gagné :)" : `c'est perdu :(`}
 			</p>
 		{:else}
 			<div class="keyboard">
