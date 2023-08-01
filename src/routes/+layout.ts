@@ -1,1 +1,1 @@
-export const ssr = false; // disable ssr, spa mode
+// export const ssr = false; // disable ssr, spa mode

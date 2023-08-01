@@ -14,11 +14,15 @@ export const handleAuthorization: Handle = async function ({ event, resolve }) {
 			console.warn('not allowed to access restricted page:', event.url.pathname);
 			console.groupEnd();
 			throw redirect(303, '/auth');
+		} else {
+			console.debug('allowed to access restricted page:', event.url.pathname);
 		}
+	} else {
+		console.debug('allowed to access page:', event.url.pathname);
 	}
 
 	// If the request is still here, just proceed as normally
-	console.debug('allowed to access restricted page:', event.url.pathname);
+
 	console.groupEnd();
 	return resolve(event);
 };
