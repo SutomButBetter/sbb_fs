@@ -45,26 +45,26 @@ export const load = (async ({ cookies }) => {
 }) satisfies PageServerLoad;
 
 export const actions = {
-	/**
-	 * Modify game state in reaction to a keypress. If client-side JavaScript
-	 * is available, this will happen in the browser instead of here
-	 */
-	update: async ({ request, cookies }) => {
-		const game = new Game(cookies.get(gameDataCookieName));
-		game.init();
-		const data = await request.formData();
-		const key = data.get('key');
+	// /**
+	//  * Modify game state in reaction to a keypress. If client-side JavaScript
+	//  * is available, this will happen in the browser instead of here
+	//  */
+	// update: async ({ request, cookies }) => {
+	// 	const game = new Game(cookies.get(gameDataCookieName));
+	// 	game.init();
+	// 	const data = await request.formData();
+	// 	const key = data.get('key');
 
-		const i = game.answers.length;
+	// 	const i = game.answers.length;
 
-		if (key === 'backspace') {
-			game.guesses[i] = game.guesses[i].slice(0, -1);
-		} else {
-			game.guesses[i] += key;
-		}
+	// 	if (key === 'backspace') {
+	// 		game.guesses[i] = game.guesses[i].slice(0, -1);
+	// 	} else {
+	// 		game.guesses[i] += key;
+	// 	}
 
-		cookies.set(gameDataCookieName, game.toString());
-	},
+	// 	cookies.set(gameDataCookieName, game.toString());
+	// },
 
 	/**
 	 * Modify game state in reaction to a guessed word. This logic always runs on

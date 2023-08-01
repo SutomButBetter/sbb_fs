@@ -165,7 +165,7 @@
 			<div class="keyboard">
 				<button data-key="enter" class:selected={submittable} disabled={!submittable}> ↲ </button>
 
-				<button on:click|preventDefault={update} data-key="backspace" formaction="?/update" name="key" value="backspace"> ⌫ </button>
+				<button on:click|preventDefault={update} data-key="backspace" name="key" value="backspace"> ⌫ </button>
 
 				{#each ['AZERTYUIOP', 'QSDFGHJKLM', 'WXCVBN'] as row}
 					<div class="row">
@@ -175,7 +175,6 @@
 								data-key={letter}
 								class={classnames[letter]}
 								disabled={guesses[i].length === data.answerLength}
-								formaction="?/update"
 								name="key"
 								value={letter}
 								aria-label="{letter} {description[letter] || ''}"
