@@ -9,9 +9,8 @@ import { sequence } from '@sveltejs/kit/hooks';
 export const handleAuthorization: Handle = async function ({ event, resolve }) {
 	console.group('Routing');
 	const session = await event.locals.getSession();
-	console.debug('path:', event.url.pathname);
 	if (event.url.pathname.startsWith('/game')) {
-		console.debug('trying to access restricted page');
+		console.debug('trying to access restricted page:', event.url.pathname);
 		if (!session) {
 			console.debug('not logged in, redirect to auth page');
 			console.groupEnd();
@@ -20,6 +19,7 @@ export const handleAuthorization: Handle = async function ({ event, resolve }) {
 	}
 
 	// If the request is still here, just proceed as normally
+	console.debug('allowed to access restricted page:', event.url.pathname);
 	console.groupEnd();
 	return resolve(event);
 };
