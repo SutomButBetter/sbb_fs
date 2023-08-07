@@ -59,3 +59,64 @@ export function processScore(solution: string, propositionWord: string): string 
 	}
 	return answer.join('');
 }
+
+/**
+ * Returns the start of the current day in France as a UTC date.
+ *
+ * This function calculates the start of the day in the user's local time zone,
+ * converts it to the corresponding UTC date, and then sets the hours, minutes,
+ * seconds, and milliseconds to 0, effectively getting the start of the day in the UTC time zone.
+ *
+ * @returns {Date} The start of the current day in France as a UTC Date object.
+ *
+ * @author ChatGPT
+ * @license MIT
+ */
+export function getStartOfDayInFranceAsUTC() {
+	// Get the current date and time in the user's local time zone
+	const currentDate = new Date();
+
+	// Get the time zone offset between the local time and UTC time in minutes
+	const timeZoneOffsetInMinutes = currentDate.getTimezoneOffset();
+
+	// Convert the local date to the corresponding UTC date by subtracting the offset
+	const utcDate = new Date(currentDate.getTime() - timeZoneOffsetInMinutes * 60 * 1000);
+
+	// Set the time to the beginning of the day in the UTC time zone (00:00:00)
+	utcDate.setUTCHours(0, 0, 0, 0);
+
+	return utcDate;
+}
+
+export async function getCurrentGame(userId: string, date: Date) {
+	const currentGame = await prisma.game.findFirst({
+		where: {
+			date: {
+				equals: date,
+			},
+			userId: {
+				equals: userId,
+			},
+		},
+	});
+
+	return currentGame;
+}
+
+export async function getCurrentGameOrCreateNew(userId: string, date: Date) {
+	const currentOrNewGame = await prisma.game.upsert({
+		where: {
+			userId_date: {
+				date: date, 
+				userId: userId
+			}
+		},
+		update: {},
+		create: {
+			userId: userId,
+			date: date,
+		}
+	});
+
+	return currentOrNewGame;
+}

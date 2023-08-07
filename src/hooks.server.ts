@@ -7,7 +7,6 @@ import { redirect, type Handle } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 
 export const handleAuthorization: Handle = async function ({ event, resolve }) {
-	console.group('Routing');
 	const session = await event.locals.getSession();
 	if (event.url.pathname === '/game') {
 		if (!session) {
@@ -22,8 +21,6 @@ export const handleAuthorization: Handle = async function ({ event, resolve }) {
 	}
 
 	// If the request is still here, just proceed as normally
-
-	console.groupEnd();
 	return resolve(event);
 };
 
@@ -41,6 +38,21 @@ export const handle = sequence(
 		],
 		secret: SBB_AUTH_SECRET,
 		trustHost: true,
+		callbacks: {
+			session: async ({ session, token, user }) => {
+				if (session?.user) {
+					session.user.id = user.id;
+				}
+
+				return session;
+			},
+			jwt: async ({ user, token }) => {
+				if (user) {
+					token.uid = user.id;
+				}
+				return token;
+			},
+		},
 	}),
 	handleAuthorization
 ) satisfies Handle;

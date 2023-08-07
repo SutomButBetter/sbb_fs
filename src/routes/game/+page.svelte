@@ -94,6 +94,30 @@
 
 		document.querySelector(`[data-key="${event.key}" i]`)?.dispatchEvent(new MouseEvent('click', { cancelable: true }));
 	}
+
+	async function submitAttempt(event: Event) {
+		event.preventDefault();
+
+		const formData = new FormData(event.target as HTMLFormElement);
+		console.log(formData)
+		const url = 'http://localhost:5173/api/game'; // Replace with your API endpoint
+
+		try {
+			const response = await fetch(url, {
+				method: 'POST',
+				body: JSON.stringify({word: formData.getAll("guess").join('')}),
+			});
+
+			if (response.ok) {
+				const responseData = await response.json();
+				console.log('Response:', responseData);
+			} else {
+				console.error('Error:', response.statusText);
+			}
+		} catch (error: any) {
+			console.error('Error:', error.message);
+		}
+	}
 </script>
 
 <svelte:window on:keydown={keydown} />
@@ -106,8 +130,7 @@
 <h1 class="visually-hidden">Sutom</h1>
 
 <form
-	method="POST"
-	action="?/enter"
+	on:submit={submitAttempt}
 	use:enhance={() => {
 		// prevent default callback from resetting the form
 		return ({ update }) => {

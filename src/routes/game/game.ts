@@ -1,5 +1,5 @@
 import { getWordMatchingCount, processScore } from '$lib/server/game/game_utils';
-import { getNocleSutomWord } from '$lib/server/nocle/nocle_interface';
+import { getNocleSutomSolution } from '$lib/server/nocle/nocle_interface';
 import { frenchDictionary, frenchWordList } from '../../lib/server/game/french_words.server';
 
 export class Game {
@@ -42,7 +42,7 @@ export class Game {
 			return;
 		}
 
-		let nocleSolution = await getNocleSutomWord(new Date());
+		let nocleSolution = await getNocleSutomSolution(new Date());
 
 		if (nocleSolution) {
 			this.solutionIndex = frenchWordList.findIndex((e) => e === nocleSolution);

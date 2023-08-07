@@ -1,4 +1,4 @@
-export async function getNocleSutomWord(datePartie: Date): Promise<string> {
+export async function getNocleSutomSolution(datePartie: Date): Promise<string> {
 	const url = getNocleSutomWordUrl(datePartie);
 
 	const apiResponse = await fetch(url);
