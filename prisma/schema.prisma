@@ -45,8 +45,8 @@ model User {
   image          String?
   accounts       Account[]
   sessions       Session[]
-  Game           Game[]
-  GameStatistics GameStatistics?
+  games          Game[]
+  gameStatistics UserStatistics?
 }
 
 model VerificationToken {
@@ -62,7 +62,7 @@ model GameSolution {
   solution String
 }
 
-model GameStatistics {
+model UserStatistics {
   id             String @id @default(cuid())
   userId         String @unique /// OneToOne relationship
   user           User   @relation(fields: [userId], references: [id])
@@ -81,17 +81,19 @@ model Game {
   id           String        @id @default(cuid())
   userId       String
   user         User          @relation(fields: [userId], references: [id])
-  date         DateTime
-  attemptCount Int?
+  date         DateTime      @db.Date
+  attemptCount Int           @default(0)
   won          Boolean       @default(false)
   attempts     GameAttempt[]
+
+  @@unique([userId, date])
 }
 
 model GameAttempt {
   id            String   @id @default(cuid())
   gameId        String
-  Game          Game     @relation(fields: [gameId], references: [id])
-  createdAt     DateTime @default(now()) @db.Date
+  game          Game     @relation(fields: [gameId], references: [id])
+  createdAt     DateTime @default(now())
   word          String
   score         String
   wordsMatching Int
