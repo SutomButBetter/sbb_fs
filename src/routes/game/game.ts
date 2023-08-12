@@ -2,7 +2,7 @@ import { getWordMatchingCount, processScore } from '$lib/server/game/game_utils'
 import { getNocleSutomSolution } from '$lib/server/nocle/nocle_interface';
 import { frenchDictionary, frenchWordList } from '../../lib/server/game/french_words.server';
 
-export class Game {
+export class CookieGame {
 	guesses: string[]; // words guessed by the player
 	answers: string[]; // score associated with each guess
 	solutionIndex: number | undefined;

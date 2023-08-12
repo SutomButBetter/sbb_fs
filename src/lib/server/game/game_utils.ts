@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import { frenchWordList } from './french_words.server';
 
 export function doesWordMatchScore(word: string, guess: string, score: string): boolean {
@@ -103,20 +104,30 @@ export async function getCurrentGame(userId: string, date: Date) {
 	return currentGame;
 }
 
-export async function getCurrentGameOrCreateNew(userId: string, date: Date) {
-	const currentOrNewGame = await prisma.game.upsert({
+export async function getCurrentGameOrCreateNew(userId: string, date: Date): Promise<GameWithAttempts> {
+	return prisma.game.upsert({
 		where: {
 			userId_date: {
-				date: date, 
-				userId: userId
-			}
+				date: date,
+				userId: userId,
+			},
 		},
 		update: {},
 		create: {
 			userId: userId,
 			date: date,
+		},
+		include: {
+			attempts: true
 		}
 	});
-
-	return currentOrNewGame;
 }
+
+
+// 1: Define a type that includes the relation to `Post`
+const gameWithAttempts = Prisma.validator<Prisma.GameDefaultArgs>()({
+	include: { attempts: true },
+})
+
+// 3: This type will include a user and all their posts
+type GameWithAttempts = Prisma.GameGetPayload<typeof gameWithAttempts>

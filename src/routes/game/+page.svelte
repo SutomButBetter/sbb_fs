@@ -2,24 +2,28 @@
 	import { enhance } from '$app/forms';
 	import { confetti } from '@neoconfetti/svelte';
 	import type { ActionData, PageData } from './$types';
-	import { attempsAllowedCount } from './game_config';
+	import { attemptsAllowedCount } from './game_config';
 	import { reduced_motion } from './reduced-motion';
 
 	export let data: PageData;
 
 	export let form: ActionData;
 
-	/** Store guesses on their own to avoid circular dependencies*/
-	$: guesses = data.guesses;
-
-	/** Whether or not the user has won */
-	$: won = data.answers.at(-1) === 'x'.repeat(data.answerLength);
+	export let currentAttempt: string = data.firstLetter ?? '';
 
 	/** The index of the current guess */
-	$: i = won ? -1 : data.answers.filter((a) => a?.length === data.answerLength)?.length;
+	$: currentRowIndex = game.won ? -1 : game.attemptCount ?? 0;
 
 	/** Whether the current guess can be submitted */
-	$: submittable = guesses[i]?.length === data.answerLength;
+	$: submittable = currentAttempt.length === data.answerLength && !badGuess;
+
+	$: won = data.game.won;
+
+	$: loadingGame = false;
+
+	$: game = data.game;
+
+	$: badGuess = false;
 
 	/**
 	 * A map of classnames for all letters that have been guessed,
@@ -42,28 +46,18 @@
 			description[data.firstLetter] = 'correct';
 		}
 
-		data.answers.forEach((answer, i) => {
-			const guess = guesses[i];
-
-			for (let i = 0; i < data.answerLength; i += 1) {
-				const letter = guess[i];
-
-				if (answer[i] === 'x') {
+		game.attempts.forEach((attempt, i) => {
+			const attemptWord = attempt.word;
+			for (const letter of attemptWord) {
+				if (attemptWord[i] === 'x') {
 					classnames[letter] = 'exact';
 					description[letter] = 'correct';
 				} else if (!classnames[letter]) {
-					classnames[letter] = answer[i] === 'c' ? 'close' : 'missing';
-					description[letter] = answer[i] === 'c' ? 'present' : 'absent';
+					classnames[letter] = attemptWord[i] === 'c' ? 'close' : 'missing';
+					description[letter] = attemptWord[i] === 'c' ? 'present' : 'absent';
 				}
 			}
 		});
-	}
-
-	$: {
-		/** Set the first letter of the last attempt*/
-		if (!won && !!data.firstLetter && guesses[i].length < 2) {
-			guesses[i] = data.firstLetter;
-		}
 	}
 
 	/**
@@ -71,16 +65,15 @@
 	 * if client-side JavaScript is enabled
 	 */
 	function update(event: MouseEvent) {
-		const guess = guesses[i];
 		const key = (event.target as HTMLButtonElement).getAttribute('data-key');
 
 		if (key === 'backspace') {
-			if (!!data.firstLetter && guesses[i]?.length > 1) {
-				guesses[i] = guess.slice(0, -1);
+			if (!!data.firstLetter && currentAttempt.length > 1) {
+				currentAttempt = currentAttempt.slice(0, -1);
 			}
-			if (form?.badGuess) form.badGuess = false;
-		} else if (guess.length < data.answerLength) {
-			guesses[i] += key;
+			if (badGuess) badGuess = false;
+		} else if (currentAttempt.length < data.answerLength) {
+			currentAttempt += key;
 		}
 	}
 
@@ -97,27 +90,51 @@
 
 	async function submitAttempt(event: Event) {
 		event.preventDefault();
+		loadingGame = true;
 
 		const formData = new FormData(event.target as HTMLFormElement);
-		console.log(formData)
+		console.log(formData);
 		const url = 'http://localhost:5173/api/game'; // Replace with your API endpoint
-
 		try {
 			const response = await fetch(url, {
 				method: 'POST',
-				body: JSON.stringify({word: formData.getAll("guess").join('')}),
+				body: JSON.stringify({ word: formData.getAll('guess').join('') }),
 			});
 
 			if (response.ok) {
 				const responseData = await response.json();
 				console.log('Response:', responseData);
+				game = responseData.game;
+				currentAttempt = data.firstLetter ?? '';
 			} else {
-				console.error('Error:', response.statusText);
+				badGuess = true;
+				console.error('Error (not ok):', response.statusText);
 			}
 		} catch (error: any) {
-			console.error('Error:', error.message);
+			console.error('Error (catch):', error.message);
+		} finally {
+			loadingGame = false;
 		}
 	}
+
+	$: getScore = (row: number, col: number): string => {
+		if (col === 0 && data.firstLetter && row === game.attemptCount) {
+			return 'x';
+		}
+		return game.attempts[row]?.score?.[col] ?? '_';
+	};
+
+	$: getValue = (row: number, col: number): string => {
+		const savedAttempt = game.attempts[row]?.word;
+		if (!savedAttempt?.[col] && row === game.attemptCount) {
+			return currentAttempt[col] ?? '';
+		}
+		return savedAttempt?.[col] ?? '';
+	};
+
+	$: isCurrentRow = (row: number): Boolean => {
+		return !won && row === currentRowIndex;
+	};
 </script>
 
 <svelte:window on:keydown={keydown} />
@@ -129,28 +146,20 @@
 
 <h1 class="visually-hidden">Sutom</h1>
 
-<form
-	on:submit={submitAttempt}
-	use:enhance={() => {
-		// prevent default callback from resetting the form
-		return ({ update }) => {
-			update({ reset: false });
-		};
-	}}
->
+<form on:submit={submitAttempt}>
 	<p>Ce jeu est en cours de development</p>
-	<div class="grid" class:playing={!won} class:bad-guess={form?.badGuess} style:--columns={data.answerLength + 1}>
-		{#each Array(attempsAllowedCount) as _, row}
-			{@const current = row === i}
+	<div class="grid" class:playing={!won} class:bad-guess={badGuess} style:--columns={data.answerLength + 1}>
+		{#each Array(attemptsAllowedCount) as _, row}
+			{@const current = isCurrentRow(row)}
 			<h2 class="visually-hidden">Row {row + 1}</h2>
 			<div class="row" class:current>
 				{#each Array(data.answerLength) as _, column}
-					{@const answer = data.answers[row]?.[column]}
-					{@const value = guesses[row]?.[column] ?? ''}
-					{@const selected = current && column === guesses[row]?.length}
-					{@const exact = answer === 'x'}
-					{@const close = answer === 'c'}
-					{@const missing = answer === '_'}
+					{@const wordScore = getScore(row, column)}
+					{@const value = getValue(row, column)}
+					{@const selected = current && column === currentAttempt?.length}
+					{@const exact = wordScore === 'x'}
+					{@const close = wordScore === 'c'}
+					{@const missing = wordScore === '_'}
 					<div class="letter" class:exact class:close class:missing class:selected>
 						{value}
 						<span class="visually-hidden">
@@ -167,19 +176,21 @@
 						<input name="guess" disabled={!current} type="hidden" {value} />
 					</div>
 				{/each}
-				{#if !!data.possibilities[row]}
+				{#if !!game.attempts[row]?.wordsMatching}
 					<div>
-						{data.possibilities[row]}
+						{game.attempts[row]?.wordsMatching}
 					</div>
+				{:else if loadingGame && current}
+					<div>...</div>
 				{/if}
 			</div>
 		{/each}
 	</div>
 
 	<div class="controls">
-		{#if won || data.answers.length >= attempsAllowedCount}
-			{#if !won && data.answer}
-				<p>La réponse était "{data.answer}"</p>
+		{#if won || (game.attemptCount ?? 0) >= attemptsAllowedCount}
+			{#if !won && data.solution}
+				<p>La réponse était "{data.solution}"</p>
 			{/if}
 			<p class="restart">
 				{won ? "c'est gagné :)" : `c'est perdu :(`}
@@ -197,7 +208,7 @@
 								on:click|preventDefault={update}
 								data-key={letter}
 								class={classnames[letter]}
-								disabled={guesses[i].length === data.answerLength}
+								disabled={currentAttempt.length === data.answerLength}
 								name="key"
 								value={letter}
 								aria-label="{letter} {description[letter] || ''}"

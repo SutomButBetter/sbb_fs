@@ -86,7 +86,7 @@ model Game {
   won          Boolean       @default(false)
   attempts     GameAttempt[]
 
-  @@unique([userId, date])
+  @@unique([userId, date], name: "userId_date")
 }
 
 model GameAttempt {
