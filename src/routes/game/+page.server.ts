@@ -1,46 +1,40 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { Game } from './game';
-import { GameDifficultyConfig, attempsAllowedCount, gameConfigCookieName, gameDataCookieName } from './game_config';
+import { GameDifficultyConfig, attemptsAllowedCount, gameConfigCookieName, gameDataCookieName } from './game_config';
+import { getCurrentGameOrCreateNew, getStartOfDayInFranceAsUTC } from '$lib/server/game/game_utils';
+import { getNocleSutomSolution } from '$lib/server/nocle/nocle_interface';
+import { CookieGame } from './game';
 
-export const load = (async ({ cookies }) => {
+export const load = (async ({ cookies, locals }) => {
 	const gameConfigCookieRawContent = cookies.get(gameConfigCookieName);
 	const config = new GameDifficultyConfig(gameConfigCookieRawContent);
 	cookies.set(gameConfigCookieName, config.toString());
 
-	const gameDataCookieRawContent = cookies.get(gameDataCookieName);
-	const game = new Game(gameDataCookieRawContent);
-	await game.init();
-	cookies.set(gameDataCookieName, game.toString());
+	const session = await locals.getSession();
+	const user = session?.user;
+	if (!user?.id) {
+		throw new Error('User Info Error');
+	}
+	const FranceDate = getStartOfDayInFranceAsUTC();
+
+	const currentGame = await getCurrentGameOrCreateNew(user.id, FranceDate);
+	const today = new Date();
+	const solutionWord = await getNocleSutomSolution(today);
 
 	return {
-		/**
-		 * The player's guessed words so far
-		 */
-		guesses: game.guesses,
-
-		/**
-		 * An array of strings like '__x_c' corresponding to the guesses, where 'x' means
-		 * an exact match, and 'c' means a close match (right letter, wrong place)
-		 */
-		answers: game.answers,
-
-		/**
-		 * number of word in the french dictionnary matching the response
-		 */
-		possibilities: game.possibilities,
+		game: currentGame,
 
 		/**
 		 * The correct answer, revealed if the game is over
 		 */
-		answer: game.answers.length >= attempsAllowedCount ? game.solution : null,
+		solution: currentGame.attemptCount ?? 0 >= attemptsAllowedCount ? solutionWord : null,
 
 		/**
 		 * Length of the word to find
 		 */
-		answerLength: game.solution.length,
+		answerLength: solutionWord.length,
 
-		firstLetter: config.revealFirstLetter ? game.solution[0] : null,
+		firstLetter: config.revealFirstLetter ? solutionWord[0] : null,
 	};
 }) satisfies PageServerLoad;
 
@@ -71,7 +65,7 @@ export const actions = {
 	 * the server, so that people can't cheat by peeking at the JavaScript
 	 */
 	enter: async ({ request, cookies }) => {
-		const game = new Game(cookies.get(gameDataCookieName));
+		const game = new CookieGame(cookies.get(gameDataCookieName));
 		game.init();
 
 		const data = await request.formData();

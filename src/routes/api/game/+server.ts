@@ -1,14 +1,13 @@
-import { Prisma } from '@prisma/client';
-import { json } from '@sveltejs/kit';
-import type { RequestEvent } from './$types';
-import { getNocleSutomSolution } from '$lib/server/nocle/nocle_interface';
+import { frenchDictionary } from '$lib/server/game/french_words.server';
 import {
-	getCurrentGame,
 	getCurrentGameOrCreateNew,
 	getStartOfDayInFranceAsUTC,
 	getWordMatchingCount,
-	processScore,
+	processScore
 } from '$lib/server/game/game_utils';
+import { getNocleSutomSolution } from '$lib/server/nocle/nocle_interface';
+import { json } from '@sveltejs/kit';
+import type { RequestEvent } from './$types';
 
 class GuessWordRequest {
 	word: string;
@@ -18,8 +17,9 @@ class GuessWordRequest {
 	}
 }
 
-export const POST = async (requestEvent: RequestEvent) => {
+export const POST = async (requestEvent: RequestEvent): Promise<Response> => {
 	const payload: GuessWordRequest = await requestEvent.request.json();
+	const wordFormatted = payload.word.toUpperCase();
 
 	const session = await requestEvent.locals.getSession();
 	const user = session?.user;
@@ -34,21 +34,25 @@ export const POST = async (requestEvent: RequestEvent) => {
 	const solutionWord = await getNocleSutomSolution(today);
 
 	// TODO : merge all checks
-	if (solutionWord[0].toUpperCase() !== payload.word[0].toUpperCase()) {
+	if (!frenchDictionary.has(wordFormatted)) {
+		return new Response(JSON.stringify({ error: `The word ${wordFormatted} does not exist in the provided dictionary.` }), { status: 400 });
+	}
+	if (solutionWord[0].toUpperCase() !== wordFormatted[0]) {
 		return new Response(JSON.stringify({ error: 'First letter does not match' }), { status: 400 });
 	}
-	if (solutionWord.length != payload.word.length) {
+	if (solutionWord.length != wordFormatted.length) {
 		return new Response(JSON.stringify({ error: 'Word length does not match' }), { status: 400 });
 	}
 
 	const currentGame = await getCurrentGameOrCreateNew(user.id, FranceDate);
 
-	const scoreForWord = processScore(solutionWord, payload.word);
-	const matchingWordCount = getWordMatchingCount(payload.word, scoreForWord);
+	const scoreForWord = processScore(solutionWord, wordFormatted);
+	const matchingWordCount = getWordMatchingCount(wordFormatted, scoreForWord);
 
-	const attempCreated = await prisma.gameAttempt.create({
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	const attemptCreated = await prisma.gameAttempt.create({
 		data: {
-			word: payload.word,
+			word: wordFormatted,
 			score: scoreForWord,
 			wordsMatching: matchingWordCount,
 			gameId: currentGame.id,
@@ -60,7 +64,7 @@ export const POST = async (requestEvent: RequestEvent) => {
 			id: currentGame.id,
 		},
 		data: {
-			attemptCount: currentGame.attemptCount ?? 0 + 1,
+			attemptCount: (currentGame.attemptCount ?? 0) + 1,
 			won: scoreForWord.split('').every((c) => c === 'x'),
 		},
 		include: {

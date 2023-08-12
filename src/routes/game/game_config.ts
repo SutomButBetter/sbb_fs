@@ -1,4 +1,4 @@
-export const attempsAllowedCount: number = 6;
+export const attemptsAllowedCount: number = 6;
 export const gameDataCookieName = 'sbb_game_data';
 export const gameConfigCookieName = 'sbb_game_config';
 
