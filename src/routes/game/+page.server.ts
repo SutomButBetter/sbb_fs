@@ -35,5 +35,4 @@ export const load = (async ({ cookies, locals }) => {
 	};
 }) satisfies PageServerLoad;
 
-export const actions = {
-} satisfies Actions;
+export const actions = {} satisfies Actions;

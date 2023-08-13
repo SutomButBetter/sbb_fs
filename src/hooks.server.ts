@@ -3,9 +3,15 @@ import { prisma } from '$lib/server/prisma';
 import Google from '@auth/core/providers/google';
 import { SvelteKitAuth } from '@auth/sveltekit';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import * as Sentry from '@sentry/sveltekit';
 import { redirect, type Handle } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 
+Sentry.init({
+	dsn: 'https://373b203dbf91fe30522b24c878b1ec74@o4505698694397952.ingest.sentry.io/4505698696888320',
+	tracesSampleRate: 1,
+	release: "sutom-but-better@" + process.env.npm_package_version,
+});
 
 export const handleAuthorization: Handle = async function ({ event, resolve }) {
 	const session = await event.locals.getSession();
@@ -28,35 +34,38 @@ export const handleAuthorization: Handle = async function ({ event, resolve }) {
 // Each function acts as a middleware, receiving the request handle
 // And returning a handle which gets passed to the next function
 export const handle = sequence(
-	SvelteKitAuth({
-		// @ts-ignore
-		adapter: PrismaAdapter(prisma),
-		providers: [
-			Google({
-				clientId: SBB_GOOGLE_CLIENT_ID,
-				clientSecret: SBB_GOOGLE_SECRET,
-			}),
-		],
-		secret: SBB_AUTH_SECRET,
-		trustHost: true,
-		callbacks: {
-			session: async ({ session, user }) => {
-				if (session?.user) {
-					session.user.id = user.id;
-				}
+	Sentry.sentryHandle(),
+	sequence(
+		SvelteKitAuth({
+			// @ts-ignore
+			adapter: PrismaAdapter(prisma),
+			providers: [
+				Google({
+					clientId: SBB_GOOGLE_CLIENT_ID,
+					clientSecret: SBB_GOOGLE_SECRET,
+				}),
+			],
+			secret: SBB_AUTH_SECRET,
+			trustHost: true,
+			callbacks: {
+				session: async ({ session, user }) => {
+					if (session?.user) {
+						session.user.id = user.id;
+					}
 
-				return session;
+					return session;
+				},
+				jwt: async ({ user, token }) => {
+					if (user) {
+						token.uid = user.id;
+					}
+					return token;
+				},
 			},
-			jwt: async ({ user, token }) => {
-				if (user) {
-					token.uid = user.id;
-				}
-				return token;
-			},
-		},
-	}),
-	handleAuthorization
-) satisfies Handle;
+		}),
+		handleAuthorization
+	) satisfies Handle
+);
 
-
-console.debug("START node env", process.env.NODE_ENV)
+console.debug('START node env', process.env.NODE_ENV);
+export const handleError = Sentry.handleErrorWithSentry();
