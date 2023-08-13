@@ -1,9 +1,8 @@
+import { getCurrentGameOrCreateNew, getSolution, getStartOfDayInFranceAsUTC } from '$lib/server/game/game_utils';
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
-import { GameDifficultyConfig, attemptsAllowedCount, gameConfigCookieName, gameDataCookieName } from './game_config';
-import { getCurrentGameOrCreateNew, getStartOfDayInFranceAsUTC } from '$lib/server/game/game_utils';
-import { getNocleSutomSolution } from '$lib/server/nocle/nocle_interface';
 import { CookieGame } from './game';
+import { GameDifficultyConfig, attemptsAllowedCount, gameConfigCookieName, gameDataCookieName } from './game_config';
 
 export const load = (async ({ cookies, locals }) => {
 	const gameConfigCookieRawContent = cookies.get(gameConfigCookieName);
@@ -15,11 +14,11 @@ export const load = (async ({ cookies, locals }) => {
 	if (!user?.id) {
 		throw new Error('User Info Error');
 	}
-	const FranceDate = getStartOfDayInFranceAsUTC();
+	const FranceDate = getStartOfDayInFranceAsUTC(null);
 
 	const currentGame = await getCurrentGameOrCreateNew(user.id, FranceDate);
 	const today = new Date();
-	const solutionWord = await getNocleSutomSolution(today);
+	const solutionWord = await getSolution(today);
 
 	return {
 		game: currentGame,

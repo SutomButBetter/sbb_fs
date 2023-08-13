@@ -42,7 +42,7 @@ export class CookieGame {
 			return;
 		}
 
-		let nocleSolution = await getNocleSutomSolution(new Date());
+		const nocleSolution = await getNocleSutomSolution(new Date());
 
 		if (nocleSolution) {
 			this.solutionIndex = frenchWordList.findIndex((e) => e === nocleSolution);

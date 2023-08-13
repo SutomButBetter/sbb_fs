@@ -1,4 +1,5 @@
 import { Prisma } from '@prisma/client';
+import { getNocleSutomSolution } from '../nocle/nocle_interface';
 import { frenchWordList } from './french_words.server';
 
 export function doesWordMatchScore(word: string, guess: string, score: string): boolean {
@@ -73,9 +74,9 @@ export function processScore(solution: string, propositionWord: string): string 
  * @author ChatGPT
  * @license MIT
  */
-export function getStartOfDayInFranceAsUTC() {
+export function getStartOfDayInFranceAsUTC(date: Date | null) {
 	// Get the current date and time in the user's local time zone
-	const currentDate = new Date();
+	const currentDate = date || new Date();
 
 	// Get the time zone offset between the local time and UTC time in minutes
 	const timeZoneOffsetInMinutes = currentDate.getTimezoneOffset();
@@ -130,3 +131,27 @@ const gameWithAttempts = Prisma.validator<Prisma.GameDefaultArgs>()({
 
 // 3: This type will include a user and all their posts
 type GameWithAttempts = Prisma.GameGetPayload<typeof gameWithAttempts>;
+
+export async function getSolution(date: Date) {
+	const dateWithoutTime = getStartOfDayInFranceAsUTC(date);
+	const solutionObject = await prisma.gameSolution.findUnique({
+		where: {
+			date: dateWithoutTime,
+		},
+	});
+
+	if (solutionObject !== null) {
+		return solutionObject.solution;
+	}
+
+	const nocleSolutionWord = await getNocleSutomSolution(date);
+
+	const createdSolutionObject = await prisma.gameSolution.create({
+		data: {
+			date: dateWithoutTime,
+			solution: nocleSolutionWord,
+		},
+	});
+
+	return createdSolutionObject.solution;
+}
