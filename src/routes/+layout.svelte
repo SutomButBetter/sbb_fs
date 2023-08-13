@@ -11,9 +11,7 @@
 	</main>
 
 	<footer>
-		<form method="POST">
-			<button data-key="enter" formaction="?/restart"> reset </button>
-		</form>
+		<p>Footer</p>
 	</footer>
 </div>
 
