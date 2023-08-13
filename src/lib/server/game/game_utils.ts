@@ -118,16 +118,15 @@ export async function getCurrentGameOrCreateNew(userId: string, date: Date): Pro
 			date: date,
 		},
 		include: {
-			attempts: true
-		}
+			attempts: true,
+		},
 	});
 }
-
 
 // 1: Define a type that includes the relation to `Post`
 const gameWithAttempts = Prisma.validator<Prisma.GameDefaultArgs>()({
 	include: { attempts: true },
-})
+});
 
 // 3: This type will include a user and all their posts
-type GameWithAttempts = Prisma.GameGetPayload<typeof gameWithAttempts>
+type GameWithAttempts = Prisma.GameGetPayload<typeof gameWithAttempts>;
