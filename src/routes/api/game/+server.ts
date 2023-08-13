@@ -1,6 +1,5 @@
 import { frenchDictionary } from '$lib/server/game/french_words.server';
-import { getCurrentGameOrCreateNew, getStartOfDayInFranceAsUTC, getWordMatchingCount, processScore } from '$lib/server/game/game_utils';
-import { getNocleSutomSolution } from '$lib/server/nocle/nocle_interface';
+import { getCurrentGameOrCreateNew, getSolution, getStartOfDayInFranceAsUTC, getWordMatchingCount, processScore } from '$lib/server/game/game_utils';
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from './$types';
 
@@ -23,10 +22,9 @@ export const POST = async (requestEvent: RequestEvent): Promise<Response> => {
 	}
 
 	const today = new Date();
-	const FranceDate = getStartOfDayInFranceAsUTC();
+	const FranceDate = getStartOfDayInFranceAsUTC(today);
 
-	// TODO : create a game solution record in the database to avoid spamming their api
-	const solutionWord = await getNocleSutomSolution(today);
+	const solutionWord = await getSolution(today);
 
 	// TODO : merge all checks
 	if (!frenchDictionary.has(wordFormatted)) {

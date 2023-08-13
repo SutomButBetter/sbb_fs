@@ -4,7 +4,7 @@
 </script>
 
 <div class="app">
-	<GlobalNavBar/>
+	<GlobalNavBar />
 
 	<main>
 		<slot />
