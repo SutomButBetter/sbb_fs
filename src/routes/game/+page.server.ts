@@ -1,4 +1,4 @@
-import { getCurrentGameOrCreateNew, getSolution, getStartOfDayInFranceAsUTC } from '$lib/server/game/game_utils';
+import { getCurrentGameOrCreateNew, getSolution, getStartOfDayInFranceAsUTC } from '$lib/server/game/game';
 import type { Actions, PageServerLoad } from './$types';
 import { GameDifficultyConfig, attemptsAllowedCount, gameConfigCookieName } from './game_config';
 

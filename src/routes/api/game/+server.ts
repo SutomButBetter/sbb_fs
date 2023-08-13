@@ -1,5 +1,5 @@
 import { frenchDictionary } from '$lib/server/game/french_words.server';
-import { getCurrentGameOrCreateNew, getSolution, getStartOfDayInFranceAsUTC, getWordMatchingCount, processScore } from '$lib/server/game/game_utils';
+import { getCurrentGameOrCreateNew, getSolution, getStartOfDayInFranceAsUTC, getWordMatchingCount, processScore } from '$lib/server/game/game';
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from './$types';
 
