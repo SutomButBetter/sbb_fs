@@ -1,4 +1,5 @@
 import { SBB_AUTH_SECRET, SBB_GOOGLE_CLIENT_ID, SBB_GOOGLE_SECRET } from '$env/static/private';
+import { sbb_release } from '$lib/config';
 import { prisma } from '$lib/server/prisma';
 import Google from '@auth/core/providers/google';
 import { SvelteKitAuth } from '@auth/sveltekit';
@@ -8,9 +9,9 @@ import { redirect, type Handle } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 
 Sentry.init({
-	dsn: 'https://373b203dbf91fe30522b24c878b1ec74@o4505698694397952.ingest.sentry.io/4505698696888320',
+	dsn: process.env.SENTRY_DSN,
 	tracesSampleRate: 1,
-	release: "sutom-but-better@" + process.env.npm_package_version,
+	release: sbb_release,
 });
 
 export const handleAuthorization: Handle = async function ({ event, resolve }) {
