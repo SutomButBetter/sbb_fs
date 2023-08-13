@@ -1,6 +1,6 @@
 {
 	"name": "sveltekit-prisma-template",
-	"version": "0.0.1",
+	"version": "0.2.2",
 	"private": true,
 	"scripts": {
 		"dev": "vite dev",
