@@ -14,7 +14,7 @@
 	/** Whether the current guess can be submitted */
 	$: submittable = currentAttempt.length === data.answerLength && !badGuess;
 
-	$: won = data.game.won;
+	$: won = game.won;
 
 	$: loadingGame = false;
 
@@ -115,7 +115,7 @@
 	}
 
 	$: getScore = (row: number, col: number): string => {
-		if (col === 0 && data.firstLetter && row === game.attemptCount) {
+		if (col === 0 && data.firstLetter && row === game.attemptCount && !won) {
 			return 'x';
 		}
 		return game.attempts[row]?.score?.[col] ?? '_';
@@ -123,7 +123,7 @@
 
 	$: getValue = (row: number, col: number): string => {
 		const savedAttempt = game.attempts[row]?.word;
-		if (!savedAttempt?.[col] && row === game.attemptCount) {
+		if (!savedAttempt?.[col] && row === game.attemptCount && !won) {
 			return currentAttempt[col] ?? '';
 		}
 		return savedAttempt?.[col] ?? '';
