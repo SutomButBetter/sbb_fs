@@ -12,7 +12,7 @@ declare global {
 	}
 
 	// eslint-disable-next-line no-var
-	var prisma: PrismaClient; // used for development to store the prisma client to avoid creating a new connection on each svelte hot-reload
+	var devPrisma: PrismaClient; // used for development to store the prisma client to avoid creating a new connection on each svelte hot-reload
 }
 
 export { };

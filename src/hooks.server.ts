@@ -6,6 +6,7 @@ import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { redirect, type Handle } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 
+
 export const handleAuthorization: Handle = async function ({ event, resolve }) {
 	const session = await event.locals.getSession();
 	if (event.url.pathname === '/game') {
@@ -39,7 +40,7 @@ export const handle = sequence(
 		secret: SBB_AUTH_SECRET,
 		trustHost: true,
 		callbacks: {
-			session: async ({ session, token, user }) => {
+			session: async ({ session, user }) => {
 				if (session?.user) {
 					session.user.id = user.id;
 				}
@@ -56,3 +57,6 @@ export const handle = sequence(
 	}),
 	handleAuthorization
 ) satisfies Handle;
+
+
+console.debug("START node env", process.env.NODE_ENV)

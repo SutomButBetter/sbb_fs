@@ -1,3 +1,4 @@
+import { prisma } from '$lib/server/prisma';
 import { Prisma } from '@prisma/client';
 import { getNocleSutomSolution } from '../nocle/nocle_interface';
 import { frenchWordList } from './french_words.server';

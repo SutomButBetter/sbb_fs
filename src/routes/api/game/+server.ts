@@ -1,5 +1,6 @@
 import { frenchDictionary } from '$lib/server/game/french_words.server';
 import { getCurrentGameOrCreateNew, getSolution, getStartOfDayInFranceAsUTC, getWordMatchingCount, processScore } from '$lib/server/game/game';
+import { prisma } from '$lib/server/prisma';
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from './$types';
 
