@@ -1,12 +1,10 @@
 <script lang="ts">
 	import { confetti } from '@neoconfetti/svelte';
-	import type { ActionData, PageData } from './$types';
+	import type { PageData } from './$types';
 	import { attemptsAllowedCount } from './game_config';
 	import { reduced_motion } from './reduced-motion';
 
 	export let data: PageData;
-
-	export let form: ActionData;
 
 	export let currentAttempt: string = data.firstLetter ?? '';
 
