@@ -4,8 +4,9 @@
 	import { attemptsAllowedCount } from './game_config';
 	import { reduced_motion } from './reduced-motion';
 
-	export let data: PageData;
+	const backEndUrl = import.meta.env.VITE_API_URL;
 
+	export let data: PageData;
 	export let currentAttempt: string = data.firstLetter ?? '';
 
 	/** The index of the current guess */
@@ -91,7 +92,7 @@
 
 		const formData = new FormData(event.target as HTMLFormElement);
 		console.log(formData);
-		const url = 'http://localhost:5173/api/game'; // Replace with your API endpoint
+		const url = `${backEndUrl}/api/game`;
 		try {
 			const response = await fetch(url, {
 				method: 'POST',
