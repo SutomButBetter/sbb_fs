@@ -7,12 +7,15 @@ import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import * as Sentry from '@sentry/sveltekit';
 import { redirect, type Handle } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
+import { ProfilingIntegration } from '@sentry/profiling-node';
 
 Sentry.init({
 	dsn: process.env.VITE_SENTRY_DSN,
 	tracesSampleRate: 1,
+	profilesSampleRate: 1.0, // Profiling sample rate is relative to tracesSampleRate
 	release: sbb_release,
 	environment: import.meta.env.MODE,
+	integrations: [new ProfilingIntegration()],
 });
 
 export const handleAuthorization: Handle = async function ({ event, resolve }) {
