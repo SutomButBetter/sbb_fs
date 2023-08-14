@@ -1,6 +1,3 @@
-export const sbb_app_name = 'sutom-but-better';
-const sbb_version_suffix = process.env.NODE_ENV !== 'production' ? '-dev' : '';
-export const sbb_version = process.env.npm_package_version;
-export const sbb_release = sbb_app_name + '@' + sbb_version + sbb_version_suffix;
-
-console.debug('START release', sbb_release);
+const sbb_version_suffix = import.meta.env.MODE !== 'production' ? '-dev' : '';
+//@ts-ignore
+export const sbb_release = SBB_APP_NAME + '@' + SBB_VERSION + sbb_version_suffix;

@@ -9,9 +9,10 @@ import { redirect, type Handle } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 
 Sentry.init({
-	dsn: process.env.SENTRY_DSN,
+	dsn: process.env.VITE_SENTRY_DSN,
 	tracesSampleRate: 1,
 	release: sbb_release,
+	environment: import.meta.env.MODE,
 });
 
 export const handleAuthorization: Handle = async function ({ event, resolve }) {
@@ -68,5 +69,4 @@ export const handle = sequence(
 	) satisfies Handle
 );
 
-console.debug('START node env', process.env.NODE_ENV);
 export const handleError = Sentry.handleErrorWithSentry();

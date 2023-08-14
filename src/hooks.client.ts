@@ -3,7 +3,7 @@ import * as Sentry from '@sentry/sveltekit';
 import { handleErrorWithSentry, Replay } from '@sentry/sveltekit';
 
 Sentry.init({
-	dsn: process.env.SENTRY_DSN,
+	dsn: import.meta.env.VITE_SENTRY_DSN,
 	tracesSampleRate: 1.0,
 
 	// This sets the sample rate to be 10%. You may want this to be 100% while
@@ -18,6 +18,7 @@ Sentry.init({
 	integrations: [new Replay()],
 
 	release: sbb_release,
+	environment: import.meta.env.MODE,
 });
 
 // If you have a custom error handler, pass it to `handleErrorWithSentry`
