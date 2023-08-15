@@ -1,19 +1,27 @@
 import { prisma } from '$lib/server/prisma';
 import { Prisma } from '@prisma/client';
 import { redirect } from '@sveltejs/kit';
+import type { Actions, PageServerLoad } from './$types';
+import type { Session, User } from '@auth/core/types';
 
-export const load = (async ({ cookies, locals, url }) => {
+const userWithAccounts = Prisma.validator<Prisma.UserDefaultArgs>()({
+	include: { accounts: true, sessions: true },
+});
+type UserWithAccounts = Prisma.UserGetPayload<typeof userWithAccounts>;
+
+export const load = (async ({ locals, url }) => {
 	const redirectUrl = url.searchParams.get('redirect');
-	const session: Session = await locals.getSession();
+	const session = await locals.getSession();
 	const isLoggedIn: boolean = !!session;
 
-	if (isLoggedIn && redirectUrl) {
-		throw redirect(303, redirectUrl);
+	if (session && redirectUrl) {
+		console.info('user is logged in redirect requested, redirect to:', redirectUrl);
+		throw redirect(302, redirectUrl);
 	}
 
-	let dbUser: User | null = null;
-	const userInfo = {};
-	if (isLoggedIn) {
+	let dbUser: UserWithAccounts | null = null;
+	const userInfo: any = {};
+	if (session) {
 		dbUser = await prisma.user.findUnique({
 			where: {
 				id: session.user.id,

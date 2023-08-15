@@ -15,6 +15,7 @@ Sentry.init({
 	profilesSampleRate: 1.0, // Profiling sample rate is relative to tracesSampleRate
 	release: sbb_release,
 	environment: import.meta.env.MODE,
+	//@ts-ignore
 	integrations: [new ProfilingIntegration()],
 });
 
@@ -25,7 +26,7 @@ export const handleAuthorization: Handle = async function ({ event, resolve }) {
 		if (!session) {
 			const redirectUrl = `/auth?redirect=${path}`;
 			console.warn('not allowed to access restricted page:', path, 'redirect to:', redirectUrl);
-			throw redirect(303, redirectUrl);
+			throw redirect(302, redirectUrl);
 		} else {
 			console.debug('allowed to access restricted page:', path);
 		}
