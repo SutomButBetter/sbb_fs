@@ -11,7 +11,7 @@
 	</main>
 
 	<footer>
-		<p>Sutom But Better v{SBB_VERSION}</p>
+		<p>⭐ Sutom But Better v{SBB_VERSION}</p>
 	</footer>
 </div>
 

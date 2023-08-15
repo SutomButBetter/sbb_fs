@@ -1,3 +1,25 @@
-<h1>Welcome</h1>
+<script lang="ts">
+</script>
 
-<a href="/game" data-sveltekit-preload-data="off">Play</a>
+<div class="welcome-div">
+	<h1 class="welcome-text">Welcome</h1>
+	<img class="welcome-logo" src="./logo.png" alt="logo" />
+</div>
+<a href="/game" data-sveltekit-preload-data="off">Start a game 🕹️</a>
+
+<style lang="scss">
+	.welcome-div {
+		display: flex;
+		align-items: center;
+        justify-content: center;
+	}
+	.welcome-text {
+		text-align: center;
+	}
+
+	.welcome-logo {
+		height: 2em;
+		width: 2em;
+		padding-left: 1em;
+	}
+</style>

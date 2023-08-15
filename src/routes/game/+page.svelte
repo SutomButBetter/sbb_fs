@@ -94,7 +94,7 @@
 		const url = `${backEndUrl}/api/game`;
 		try {
 			const response = await fetch(url, {
-				headers: { 'accept': 'application/json' },
+				headers: { accept: 'application/json' },
 				method: 'POST',
 				body: JSON.stringify({ word: formData.getAll('guess').join('') }),
 			});
@@ -173,7 +173,7 @@
 						<input name="guess" disabled={!current} type="hidden" {value} />
 					</div>
 				{/each}
-				{#if !!game.attempts[row]?.wordsMatching}
+				{#if !!game.attempts[row]?.wordsMatching && game.attempts[row]?.wordsMatching > 1}
 					<div>
 						{game.attempts[row]?.wordsMatching}
 					</div>

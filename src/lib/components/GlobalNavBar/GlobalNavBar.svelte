@@ -4,9 +4,8 @@
 
 <div class="navbar">
     <div class="navlinks" data-sveltekit-preload-data="off">
-        <div class="navlink"><a href="/">Welcome</a></div>
-        <div class="navlink"><a href="/game">Game</a></div>
-        <div class="navlink"><a href="/auth">Auth</a></div>
+        <div class="navlink"><a href="/">🏠 Home</a></div>
+        <div class="navlink"><a href="/game">🕹️ Game</a></div>
     </div>
     <div class="navuser">
         {#if $page.data.session?.user}
@@ -21,7 +20,7 @@
                     I
                 </span>
             {/if}
-            <p>{$page.data.session.user.name ?? 'Unknown User'}</p>
+            <p>👤 {$page.data.session.user.name ?? 'Unknown User'} </p>
 		{/if}
     </div>
 </div>
