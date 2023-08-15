@@ -173,13 +173,15 @@
 						<input name="guess" disabled={!current} type="hidden" {value} />
 					</div>
 				{/each}
-				{#if !!game.attempts[row]?.wordsMatching && game.attempts[row]?.wordsMatching > 1}
-					<div>
-						{game.attempts[row]?.wordsMatching}
-					</div>
-				{:else if loadingGame && current}
-					<div>...</div>
-				{/if}
+				<div class="letter empty">
+					{#if !!game.attempts[row]?.wordsMatching && game.attempts[row]?.wordsMatching > 1}
+						<div class="attempt-count-bubble">
+							{game.attempts[row]?.wordsMatching}
+						</div>
+					{:else if loadingGame && current}
+						<div class="attempt-count-bubble">...</div>
+					{/if}
+				</div>
 			</div>
 		{/each}
 	</div>
@@ -233,7 +235,7 @@
 	/>
 {/if}
 
-<style>
+<style lang="scss">
 	form {
 		width: 100%;
 		height: 100%;
@@ -243,27 +245,6 @@
 		justify-content: center;
 		gap: 1rem;
 		flex: 1;
-	}
-
-	.how-to-play {
-		color: var(--color-text);
-	}
-
-	.how-to-play::before {
-		content: 'i';
-		display: inline-block;
-		font-size: 0.8em;
-		font-weight: 900;
-		width: 1em;
-		height: 1em;
-		padding: 0.2em;
-		line-height: 1;
-		border: 1.5px solid var(--color-text);
-		border-radius: 50%;
-		text-align: center;
-		margin: 0 0.5em 0 0;
-		position: relative;
-		top: -0.05em;
 	}
 
 	.grid {
@@ -310,20 +291,24 @@
 		background: white;
 		margin: 0;
 		color: rgba(0, 0, 0, 0.7);
-	}
+		&.missing {
+			background: rgba(255, 255, 255, 0.5);
+			color: rgba(0, 0, 0, 0.5);
+		}
 
-	.letter.missing {
-		background: rgba(255, 255, 255, 0.5);
-		color: rgba(0, 0, 0, 0.5);
-	}
+		&.exact {
+			background: var(--color-theme-2);
+			color: white;
+		}
 
-	.letter.exact {
-		background: var(--color-theme-2);
-		color: white;
-	}
+		&.close {
+			border: 2px solid var(--color-theme-2);
+		}
 
-	.letter.close {
-		border: 2px solid var(--color-theme-2);
+		&.empty {
+			background: unset;
+			color: unset;
+		}
 	}
 
 	.selected {
@@ -437,5 +422,15 @@
 		100% {
 			transform: translateX(0);
 		}
+	}
+
+	.attempt-count-bubble {
+		display: inline-block;
+		width: 30px;
+		height: 30px;
+		text-align: center;
+		line-height: 30px;
+		font-size: 16px;
+		text-align: center;
 	}
 </style>
