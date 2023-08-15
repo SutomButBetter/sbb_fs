@@ -19,16 +19,18 @@ Sentry.init({
 });
 
 export const handleAuthorization: Handle = async function ({ event, resolve }) {
+	const path = event.url.pathname;
 	const session = await event.locals.getSession();
-	if (event.url.pathname === '/game') {
+	if (path === '/game') {
 		if (!session) {
-			console.warn('not allowed to access restricted page:', event.url.pathname);
-			throw redirect(303, '/auth?redirect=' + event.url.pathname);
+			const redirectUrl = `/auth?redirect=${path}`;
+			console.warn('not allowed to access restricted page:', path, 'redirect to:', redirectUrl);
+			throw redirect(303, redirectUrl);
 		} else {
-			console.debug('allowed to access restricted page:', event.url.pathname);
+			console.debug('allowed to access restricted page:', path);
 		}
 	} else {
-		console.debug('allowed to access page:', event.url.pathname);
+		console.debug('allowed to access page:', path);
 	}
 
 	// If the request is still here, just proceed as normally
