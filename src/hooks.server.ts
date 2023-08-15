@@ -1,4 +1,4 @@
-import { SBB_AUTH_SECRET, SBB_GOOGLE_CLIENT_ID, SBB_GOOGLE_SECRET } from '$env/static/private';
+import { SBB_AUTH_SECRET, SBB_GOOGLE_CLIENT_ID, SBB_GOOGLE_SECRET, VITE_SENTRY_DSN } from '$env/static/private';
 import { sbb_release } from '$lib/config';
 import { prisma } from '$lib/server/prisma';
 import Google from '@auth/core/providers/google';
@@ -10,7 +10,7 @@ import { sequence } from '@sveltejs/kit/hooks';
 import { ProfilingIntegration } from '@sentry/profiling-node';
 
 Sentry.init({
-	dsn: process.env.VITE_SENTRY_DSN,
+	dsn: VITE_SENTRY_DSN,
 	tracesSampleRate: 1,
 	profilesSampleRate: 1.0, // Profiling sample rate is relative to tracesSampleRate
 	release: sbb_release,
@@ -23,8 +23,7 @@ export const handleAuthorization: Handle = async function ({ event, resolve }) {
 	if (event.url.pathname === '/game') {
 		if (!session) {
 			console.warn('not allowed to access restricted page:', event.url.pathname);
-			console.groupEnd();
-			throw redirect(303, '/auth');
+			throw redirect(303, '/auth?redirect=' + event.url.pathname);
 		} else {
 			console.debug('allowed to access restricted page:', event.url.pathname);
 		}

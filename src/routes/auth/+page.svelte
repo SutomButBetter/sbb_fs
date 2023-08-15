@@ -1,20 +1,28 @@
-<script>
+<script lang="ts">
 	import { page } from '$app/stores';
 	import { signIn, signOut } from '@auth/sveltekit/client';
+	import type { PageData } from './$types';
+
+	export let data: PageData;
 </script>
 
 <p>
-	{#if $page.data.session}
-		{#if $page.data.session.user?.image}
-			<span style="background-image: url('{$page.data.session.user.image}')" class="avatar" />
-		{/if}
+	{#if data.isLoggedIn}
 		<span class="signedInText">
-			<small>Signed in as</small><br />
-			<strong>{$page.data.session.user?.name ?? 'User'}</strong>
+			<small>You are signed in</small><br />
+			<strong>{data.user.name ?? 'No Name'}</strong>
 		</span>
 		<button on:click={() => signOut()} class="button">Sign out</button>
+		<p>Providers :</p>
+		<ul>
+			{#each data.accounts as account}
+				<li>
+					{account.provider} : OK
+				</li>
+			{/each}
+		</ul>
 	{:else}
-		<span class="notSignedInText">You are not signed in</span>
+		<span class="notSignedInText">Please log in</span>
 		<br />
 		<button on:click={() => signIn('google')}>Login</button>
 	{/if}

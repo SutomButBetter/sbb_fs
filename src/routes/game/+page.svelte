@@ -91,7 +91,6 @@
 		loadingGame = true;
 
 		const formData = new FormData(event.target as HTMLFormElement);
-		console.log(formData);
 		const url = `${backEndUrl}/api/game`;
 		try {
 			const response = await fetch(url, {
@@ -101,7 +100,6 @@
 
 			if (response.ok) {
 				const responseData = await response.json();
-				console.log('Response:', responseData);
 				game = responseData.game;
 				currentAttempt = data.firstLetter ?? '';
 			} else {
