@@ -9,6 +9,9 @@ export default defineConfig({
 				org: 'sutombutbetter',
 				project: 'sbb_svelte',
 				authToken: process.env.SENTRY_AUTH_TOKEN,
+				release: `sutom-but-better@${process.env.npm_package_version ?? 'unnamed'}`, //sbb_release
+				telemetry: false,
+				dryRun: process.env.NODE_ENV !== 'production',
 			},
 		}),
 		sveltekit(),
