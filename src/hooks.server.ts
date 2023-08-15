@@ -22,7 +22,7 @@ Sentry.init({
 export const handleAuthorization: Handle = async function ({ event, resolve }) {
 	const path = event.url.pathname;
 	const session = await event.locals.getSession();
-	console.group('handleAuthorization for ', path);
+	console.group('handleAuthorization for', path);
 	if (path === '/game') {
 		if (!session) {
 			const redirectUrl = `/auth?redirect=${path}`;
@@ -40,15 +40,9 @@ export const handleAuthorization: Handle = async function ({ event, resolve }) {
 	return resolve(event);
 };
 
-const logHandler: Handle = async ({ event, resolve }) => {
-	if (import.meta.env.MODE === 'development') console.debug('HANDLE', event.url);
-	return resolve(event);
-};
-
 // Each function acts as a middleware, receiving the request handle
 // And returning a handle which gets passed to the next function
 export const handle = sequence(
-	logHandler,
 	Sentry.sentryHandle(),
 	SvelteKitAuth({
 		// @ts-ignore

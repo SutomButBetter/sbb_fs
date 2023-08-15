@@ -221,20 +221,20 @@
 		{/if}
 	</div>
 </form>
-
 {#if won}
 	<div
+		id="confetti"
 		style="position: absolute; left: 50%; top: 30%"
 		use:confetti={{
-			particleCount: $reduced_motion ? 0 : undefined,
-			force: 0.7,
-			stageWidth: window.innerWidth,
-			stageHeight: window.innerHeight,
+			particleCount: $reduced_motion ? 300 : (attemptsAllowedCount - game.attemptCount + 1) * 125,
+			force: 0.9,
+			stageWidth: window.innerWidth * 0.9,
+			stageHeight: window.innerHeight * 0.65,
 			colors: ['#ff3e00', '#40b3ff', '#676778'],
+			duration: 5000,
 		}}
 	/>
 {/if}
-
 <style lang="scss">
 	form {
 		width: 100%;
