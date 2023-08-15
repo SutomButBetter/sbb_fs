@@ -1,6 +1,8 @@
-<script>
+<script lang="ts">
 	import GlobalNavBar from '$lib/components/GlobalNavBar/GlobalNavBar.svelte';
 	import './styles.scss';
+	// @ts-ignore
+	export const appVersion = SBB_VERSION;
 </script>
 
 <div class="app">
@@ -11,7 +13,7 @@
 	</main>
 
 	<footer>
-		<p>⭐ Sutom But Better v{SBB_VERSION}</p>
+		<p>⭐ Sutom But Better v{appVersion}</p>
 	</footer>
 </div>
 

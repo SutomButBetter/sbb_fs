@@ -3,6 +3,7 @@ import { getCurrentGameOrCreateNew, getSolution, getStartOfDayInFranceAsUTC, get
 import { prisma } from '$lib/server/prisma';
 import { json } from '@sveltejs/kit';
 import type { RequestEvent } from './$types';
+import { GameStatus } from '@prisma/client';
 
 class GuessWordRequest {
 	word: string;
@@ -51,7 +52,23 @@ export const POST = async (requestEvent: RequestEvent): Promise<Response> => {
 			wordsMatching: matchingWordCount,
 			gameId: currentGame.id,
 		},
+		include: {
+			game: true,
+		},
 	});
+
+	const isWordSolution = scoreForWord.split('').every((c) => c === 'x');
+
+	let newState = attemptCreated.game.state;
+	let newStartTime = attemptCreated.game.startTime;
+	let newEndTime = attemptCreated.game.endTime;
+	if (isWordSolution) {
+		newState = GameStatus.WON;
+		newEndTime = today;
+	} else if (attemptCreated.game.state === GameStatus.NOT_STARTED) {
+		newState = GameStatus.ONGOING;
+		newStartTime = today;
+	}
 
 	const result = await prisma.game.update({
 		where: {
@@ -59,7 +76,9 @@ export const POST = async (requestEvent: RequestEvent): Promise<Response> => {
 		},
 		data: {
 			attemptCount: (currentGame.attemptCount ?? 0) + 1,
-			won: scoreForWord.split('').every((c) => c === 'x'),
+			state: newState,
+			startTime: newStartTime,
+			endTime: newEndTime,
 		},
 		include: {
 			attempts: true,

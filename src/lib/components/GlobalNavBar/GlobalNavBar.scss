@@ -9,12 +9,9 @@
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		gap: 15px;
-
+		gap: 16px;
+		padding-left: 16px;
 		.navlink {
-			padding-left: 10px;
-			padding-right: 10px;
-
 			a {
 				text-decoration: none;
 			}

@@ -3,19 +3,23 @@
 	import type { PageData } from './$types';
 	import { attemptsAllowedCount } from './game_config';
 	import { reduced_motion } from './reduced-motion';
+	import { GameStatus } from '@prisma/client';
 
 	const backEndUrl = import.meta.env.VITE_API_URL;
 
 	export let data: PageData;
 	export let currentAttempt: string = data.firstLetter ?? '';
 
+	const gameOverStatuses : GameStatus[] = [GameStatus.WON, GameStatus.LOST, GameStatus.NOT_FINISHED]
+	$: gameOver = gameOverStatuses.includes(game.state as GameStatus);
+
 	/** The index of the current guess */
-	$: currentRowIndex = game.won ? -1 : game.attemptCount ?? 0;
+	$: currentRowIndex = gameOver ? -1 : game.attemptCount ?? 0;
 
 	/** Whether the current guess can be submitted */
 	$: submittable = currentAttempt.length === data.answerLength && !badGuess;
 
-	$: won = game.won;
+	$: won = game.state === GameStatus.WON;
 
 	$: loadingGame = false;
 
@@ -115,7 +119,7 @@
 	}
 
 	$: getScore = (row: number, col: number): string => {
-		if (col === 0 && data.firstLetter && row === game.attemptCount && !won) {
+		if (col === 0 && data.firstLetter && row === game.attemptCount && !gameOver) {
 			return 'x';
 		}
 		return game.attempts[row]?.score?.[col] ?? '_';
@@ -123,14 +127,14 @@
 
 	$: getValue = (row: number, col: number): string => {
 		const savedAttempt = game.attempts[row]?.word;
-		if (!savedAttempt?.[col] && row === game.attemptCount && !won) {
+		if (!savedAttempt?.[col] && row === game.attemptCount && !gameOver) {
 			return currentAttempt[col] ?? '';
 		}
 		return savedAttempt?.[col] ?? '';
 	};
 
 	$: isCurrentRow = (row: number): Boolean => {
-		return !won && row === currentRowIndex;
+		return !gameOver && row === currentRowIndex;
 	};
 </script>
 
@@ -145,7 +149,7 @@
 
 <form on:submit={submitAttempt}>
 	<p>Ce jeu est en cours de development</p>
-	<div class="grid" class:playing={!won} class:bad-guess={badGuess} style:--columns={data.answerLength + 1}>
+	<div class="grid" class:playing={!gameOver} class:bad-guess={badGuess} style:--columns={data.answerLength + 1}>
 		{#each Array(attemptsAllowedCount) as _, row}
 			{@const current = isCurrentRow(row)}
 			<h2 class="visually-hidden">Row {row + 1}</h2>
@@ -187,8 +191,8 @@
 	</div>
 
 	<div class="controls">
-		{#if won || (game.attemptCount ?? 0) >= attemptsAllowedCount}
-			{#if !won && data.solution}
+		{#if gameOver || (game.attemptCount ?? 0) >= attemptsAllowedCount}
+			{#if !gameOver && data.solution}
 				<p>La réponse était "{data.solution}"</p>
 			{/if}
 			<p class="restart">

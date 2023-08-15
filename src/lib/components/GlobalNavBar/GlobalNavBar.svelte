@@ -6,6 +6,7 @@
     <div class="navlinks" data-sveltekit-preload-data="off">
         <div class="navlink"><a href="/">🏠 Home</a></div>
         <div class="navlink"><a href="/game">🕹️ Game</a></div>
+        <div class="navlink"><a href="/games/today">🏅 Results</a></div>
     </div>
     <div class="navuser">
         {#if $page.data.session?.user}
