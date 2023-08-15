@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sbb.leondelcroix.com/sitemap.xml
