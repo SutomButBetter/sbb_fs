@@ -1,11 +1,9 @@
 <script lang="ts">
 	import { confetti } from '@neoconfetti/svelte';
+	import { GameStatus } from '@prisma/client';
 	import type { PageData } from './$types';
 	import { attemptsAllowedCount } from './game_config';
 	import { reduced_motion } from './reduced-motion';
-	import { GameStatus } from '@prisma/client';
-
-	const backEndUrl = import.meta.env.VITE_API_URL;
 
 	export let data: PageData;
 	export let currentAttempt: string = data.firstLetter ?? '';
@@ -95,9 +93,8 @@
 		loadingGame = true;
 
 		const formData = new FormData(event.target as HTMLFormElement);
-		const url = `${backEndUrl}/api/game`;
 		try {
-			const response = await fetch(url, {
+			const response = await fetch('/api/game', {
 				headers: { accept: 'application/json' },
 				method: 'POST',
 				body: JSON.stringify({ word: formData.getAll('guess').join('') }),
