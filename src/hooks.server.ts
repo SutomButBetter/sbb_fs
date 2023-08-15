@@ -40,6 +40,18 @@ export const handleAuthorization: Handle = async function ({ event, resolve }) {
 	return resolve(event);
 };
 
+export const sentrySetUser: Handle = async function ({ event, resolve }) {
+	const session = await event.locals.getSession();
+	if (session?.user) {
+		Sentry.setUser({
+			email: session.user.email ?? 'no-mail@example.com',
+			username: session.user.name ?? 'No Name.',
+			id: session.user.id,
+		});
+	}
+	return resolve(event);
+};
+
 // Each function acts as a middleware, receiving the request handle
 // And returning a handle which gets passed to the next function
 export const handle = sequence(
@@ -71,6 +83,7 @@ export const handle = sequence(
 			},
 		},
 	}),
+	sentrySetUser,
 	handleAuthorization
 ) satisfies Handle;
 
