@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { page } from '$app/stores';
 	import { signIn, signOut } from '@auth/sveltekit/client';
 	import type { PageData } from './$types';
 

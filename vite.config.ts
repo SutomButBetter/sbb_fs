@@ -7,7 +7,7 @@ export default defineConfig({
 		sentrySvelteKit({
 			sourceMapsUploadOptions: {
 				org: 'sutombutbetter',
-				project: 'javascript-sveltekit',
+				project: 'sbb_svelte',
 				authToken: process.env.SENTRY_AUTH_TOKEN,
 			},
 		}),

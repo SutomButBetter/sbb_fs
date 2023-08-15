@@ -94,6 +94,7 @@
 		const url = `${backEndUrl}/api/game`;
 		try {
 			const response = await fetch(url, {
+				headers: { 'accept': 'application/json' },
 				method: 'POST',
 				body: JSON.stringify({ word: formData.getAll('guess').join('') }),
 			});

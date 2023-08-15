@@ -3,7 +3,7 @@
 </script>
 
 <div class="navbar">
-    <div class="navlinks">
+    <div class="navlinks" data-sveltekit-preload-data="off">
         <div class="navlink"><a href="/">Welcome</a></div>
         <div class="navlink"><a href="/game">Game</a></div>
         <div class="navlink"><a href="/auth">Auth</a></div>
