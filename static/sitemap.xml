@@ -10,9 +10,11 @@
     <url>
         <loc>https://sbb.leondelcroix.com</loc>
         <changefreq>weekly</changefreq>
+        <lastmod>2023-08-16</lastmod>
     </url>
     <url>
         <loc>https://sbb.leondelcroix.com/game</loc>
         <changefreq>daily</changefreq>
+        <lastmod>2023-08-16</lastmod>
     </url>
 </urlset>

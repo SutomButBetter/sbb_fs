@@ -1,6 +1,12 @@
 <script lang="ts">
 </script>
 
+<svelte:head>
+	<title>Sutom But Better</title>
+	<meta name="description" content="🕹️ Welcome to SutomButBetter" />
+	<meta name="robots" content="index, follow" />
+</svelte:head>
+
 <div class="welcome-div">
 	<h1 class="welcome-text">Welcome</h1>
 	<img class="welcome-logo" src="./logo.png" alt="logo" />
@@ -11,7 +17,7 @@
 	.welcome-div {
 		display: flex;
 		align-items: center;
-        justify-content: center;
+		justify-content: center;
 	}
 	.welcome-text {
 		text-align: center;

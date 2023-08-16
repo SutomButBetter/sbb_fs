@@ -137,8 +137,9 @@
 <svelte:window on:keydown={keydown} />
 
 <svelte:head>
-	<title>Sutom</title>
-	<meta name="description" content="Sutom But Better" />
+	<title>Sutom But Better</title>
+	<meta name="description" content="🕹️ Play Sutom But Better Here" />
+	<meta name="robots" content="index, follow" />
 </svelte:head>
 
 <h1 class="visually-hidden">Sutom</h1>

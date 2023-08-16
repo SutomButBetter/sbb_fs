@@ -5,6 +5,12 @@
 	export let data: PageData;
 </script>
 
+<svelte:head>
+	<title>Sutom But Better : Auth</title>
+	<meta name="description" content="Login with socials" />
+	<meta name="robots" content="noindex, nofollow" />
+</svelte:head>
+
 <p>
 	{#if data.isLoggedIn}
 		<span class="signedInText">
