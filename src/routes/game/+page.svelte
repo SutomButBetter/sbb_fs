@@ -46,7 +46,7 @@
 			description[data.firstLetter] = 'correct';
 		}
 
-		game.attempts.forEach((attempt, _) => {
+		game.attempts.forEach((attempt: GameAttempt) => {
 			const attemptWord = attempt.word;
 			const attemptScore = attempt.score;
 
