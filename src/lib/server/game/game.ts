@@ -1,5 +1,4 @@
 import { prisma } from '$lib/server/prisma';
-import { Prisma } from '@prisma/client';
 import { getNocleSutomSolution } from '../nocle/nocle_interface';
 import { frenchWordList } from './french_words.server';
 
@@ -124,11 +123,6 @@ export async function getCurrentGameOrCreateNew(userId: string, date: Date): Pro
 		},
 	});
 }
-
-const gameWithAttempts = Prisma.validator<Prisma.GameDefaultArgs>()({
-	include: { attempts: true },
-});
-type GameWithAttempts = Prisma.GameGetPayload<typeof gameWithAttempts>;
 
 export async function getSolution(date: Date) {
 	const dateWithoutTime = getStartOfDayInFranceAsUTC(date);

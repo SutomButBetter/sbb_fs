@@ -1,13 +1,6 @@
 import { prisma } from '$lib/server/prisma';
-import { Prisma } from '@prisma/client';
 import { redirect } from '@sveltejs/kit';
-import type { Actions, PageServerLoad } from './$types';
-import type { Session, User } from '@auth/core/types';
-
-const userWithAccounts = Prisma.validator<Prisma.UserDefaultArgs>()({
-	include: { accounts: true, sessions: true },
-});
-type UserWithAccounts = Prisma.UserGetPayload<typeof userWithAccounts>;
+import type { PageServerLoad } from './$types';
 
 export const load = (async ({ locals, url }) => {
 	const redirectUrl = url.searchParams.get('redirect');
