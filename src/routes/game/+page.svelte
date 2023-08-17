@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { confetti } from '@neoconfetti/svelte';
-	import { GameStatus } from '@prisma/client';
+	import { GameStatus, type GameAttempt } from '@prisma/client';
 	import type { PageData } from './$types';
 	import { attemptsAllowedCount } from './game_config';
 	import { reduced_motion } from './reduced-motion';
@@ -8,7 +8,7 @@
 	export let data: PageData;
 	export let currentAttempt: string = data.firstLetter ?? '';
 
-	const gameOverStatuses : GameStatus[] = [GameStatus.WON, GameStatus.LOST, GameStatus.NOT_FINISHED]
+	const gameOverStatuses: GameStatus[] = [GameStatus.WON, GameStatus.LOST, GameStatus.NOT_FINISHED];
 	$: gameOver = gameOverStatuses.includes(game.state as GameStatus);
 
 	/** The index of the current guess */
@@ -46,15 +46,20 @@
 			description[data.firstLetter] = 'correct';
 		}
 
-		game.attempts.forEach((attempt, i) => {
+		game.attempts.forEach((attempt, _) => {
 			const attemptWord = attempt.word;
-			for (const letter of attemptWord) {
-				if (attemptWord[i] === 'x') {
+			const attemptScore = attempt.score;
+
+			for (let i = 0; i < attemptWord.length; i++) {
+				const letter = attemptWord[i];
+				const score = attemptScore[i]
+
+				if (score === 'x') {
 					classnames[letter] = 'exact';
 					description[letter] = 'correct';
 				} else if (!classnames[letter]) {
-					classnames[letter] = attemptWord[i] === 'c' ? 'close' : 'missing';
-					description[letter] = attemptWord[i] === 'c' ? 'present' : 'absent';
+					classnames[letter] = score === 'c' ? 'close' : 'missing';
+					description[letter] = score === 'c' ? 'present' : 'absent';
 				}
 			}
 		});
@@ -236,6 +241,7 @@
 		}}
 	/>
 {/if}
+
 <style lang="scss">
 	form {
 		width: 100%;
