@@ -23,4 +23,10 @@ export default defineConfig({
 		SBB_VERSION: JSON.stringify(process.env.npm_package_version),
 		SBB_APP_NAME: JSON.stringify('sutom-but-better'),
 	},
+	resolve: {
+		alias: {
+			// HACK to fix a problem with vite and javascript enums (https://github.com/prisma/prisma/issues/12504#issuecomment-1285883083)
+			'.prisma/client/index-browser': './node_modules/.prisma/client/index-browser.js',
+		},
+	},
 });

@@ -1,21 +1,23 @@
 <script lang="ts">
 	import { confetti } from '@neoconfetti/svelte';
+	import { GameStatus, type GameAttempt } from '@prisma/client';
 	import type { PageData } from './$types';
 	import { attemptsAllowedCount } from './game_config';
 	import { reduced_motion } from './reduced-motion';
 
-	const backEndUrl = import.meta.env.VITE_API_URL;
-
 	export let data: PageData;
 	export let currentAttempt: string = data.firstLetter ?? '';
 
+	const gameOverStatuses: GameStatus[] = [GameStatus.WON, GameStatus.LOST, GameStatus.NOT_FINISHED];
+	$: gameOver = gameOverStatuses.includes(game.state as GameStatus);
+
 	/** The index of the current guess */
-	$: currentRowIndex = game.won ? -1 : game.attemptCount ?? 0;
+	$: currentRowIndex = gameOver ? -1 : game.attemptCount ?? 0;
 
 	/** Whether the current guess can be submitted */
 	$: submittable = currentAttempt.length === data.answerLength && !badGuess;
 
-	$: won = game.won;
+	$: won = game.state === GameStatus.WON;
 
 	$: loadingGame = false;
 
@@ -44,15 +46,20 @@
 			description[data.firstLetter] = 'correct';
 		}
 
-		game.attempts.forEach((attempt, i) => {
+		game.attempts.forEach((attempt: GameAttempt) => {
 			const attemptWord = attempt.word;
-			for (const letter of attemptWord) {
-				if (attemptWord[i] === 'x') {
+			const attemptScore = attempt.score;
+
+			for (let i = 0; i < attemptWord.length; i++) {
+				const letter = attemptWord[i];
+				const score = attemptScore[i]
+
+				if (score === 'x') {
 					classnames[letter] = 'exact';
 					description[letter] = 'correct';
 				} else if (!classnames[letter]) {
-					classnames[letter] = attemptWord[i] === 'c' ? 'close' : 'missing';
-					description[letter] = attemptWord[i] === 'c' ? 'present' : 'absent';
+					classnames[letter] = score === 'c' ? 'close' : 'missing';
+					description[letter] = score === 'c' ? 'present' : 'absent';
 				}
 			}
 		});
@@ -91,9 +98,8 @@
 		loadingGame = true;
 
 		const formData = new FormData(event.target as HTMLFormElement);
-		const url = `${backEndUrl}/api/game`;
 		try {
-			const response = await fetch(url, {
+			const response = await fetch('/api/game', {
 				headers: { accept: 'application/json' },
 				method: 'POST',
 				body: JSON.stringify({ word: formData.getAll('guess').join('') }),
@@ -115,7 +121,7 @@
 	}
 
 	$: getScore = (row: number, col: number): string => {
-		if (col === 0 && data.firstLetter && row === game.attemptCount && !won) {
+		if (col === 0 && data.firstLetter && row === game.attemptCount && !gameOver) {
 			return 'x';
 		}
 		return game.attempts[row]?.score?.[col] ?? '_';
@@ -123,14 +129,14 @@
 
 	$: getValue = (row: number, col: number): string => {
 		const savedAttempt = game.attempts[row]?.word;
-		if (!savedAttempt?.[col] && row === game.attemptCount && !won) {
+		if (!savedAttempt?.[col] && row === game.attemptCount && !gameOver) {
 			return currentAttempt[col] ?? '';
 		}
 		return savedAttempt?.[col] ?? '';
 	};
 
 	$: isCurrentRow = (row: number): Boolean => {
-		return !won && row === currentRowIndex;
+		return !gameOver && row === currentRowIndex;
 	};
 </script>
 
@@ -146,7 +152,7 @@
 
 <form on:submit={submitAttempt}>
 	<p>Ce jeu est en cours de development</p>
-	<div class="grid" class:playing={!won} class:bad-guess={badGuess} style:--columns={data.answerLength + 1}>
+	<div class="grid" class:playing={!gameOver} class:bad-guess={badGuess} style:--columns={data.answerLength + 1}>
 		{#each Array(attemptsAllowedCount) as _, row}
 			{@const current = isCurrentRow(row)}
 			<h2 class="visually-hidden">Row {row + 1}</h2>
@@ -188,8 +194,8 @@
 	</div>
 
 	<div class="controls">
-		{#if won || (game.attemptCount ?? 0) >= attemptsAllowedCount}
-			{#if !won && data.solution}
+		{#if gameOver || (game.attemptCount ?? 0) >= attemptsAllowedCount}
+			{#if !gameOver && data.solution}
 				<p>La réponse était "{data.solution}"</p>
 			{/if}
 			<p class="restart">
@@ -236,6 +242,7 @@
 		}}
 	/>
 {/if}
+
 <style lang="scss">
 	form {
 		width: 100%;

@@ -83,10 +83,20 @@ model Game {
   user         User          @relation(fields: [userId], references: [id])
   date         DateTime      @db.Date
   attemptCount Int           @default(0)
-  won          Boolean       @default(false)
   attempts     GameAttempt[]
+  state        GameStatus    @default(NOT_STARTED)
+  startTime    DateTime?
+  endTime      DateTime?
 
   @@unique([userId, date], name: "userId_date")
+}
+
+enum GameStatus {
+  NOT_STARTED // player did not start
+  ONGOING // user is playing
+  NOT_FINISHED // time is out
+  WON // game is over : success
+  LOST // game is over : failure
 }
 
 model GameAttempt {
